@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Point of Sale Calculator Fuerza Joven</title>
+</head>
+<body>
+    <div class="addItem">
+        <h1>Name</h1>
+        <input type="text" value="" data-total="0" id="item">
+        <h1>Price</h1>
+        <input type="text" inputmode="decimal" value="" data-total="0" id="price">
+        <div class="footer">
+            <button class="cancel">
+                <h1>Cancel</h1>            
+            </button>
+            <button class="confirm">
+                <h1>Add</h1>            
+            </button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="controls">
+            <button class="add">
+            </button>
+            <button class="finished">
+                <h1>Done</h1>            
+            </button>
+        </div>
+        <ul class="order">
+            <li>
+                <button class="remove"></button>
+                <h2 data-price="1.50">Tacos</h2>
+                <div class="quantity">
+                    <button class="decrement"></button>
+                    <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="1.50" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="tacos">
+                    <button class="increment"></button>
+                </div>
+            </li>
+            <li>
+                <button class="remove"></button>
+                <h2 data-price="2.00">Nachos</h2>
+                <div class="quantity">
+                    <button class="decrement"></button>
+                    <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="2.00" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="nachos">
+                    <button class="increment"></button>
+                </div>
+            </li>
+            <li>
+                <button class="remove"></button>
+                <h2 data-price=".50">Chips</h2>
+                <div class="quantity">
+                    <button class="decrement"></button>
+                    <input type="number" pattern="[0-9]*" inputmode="numeric" data-price=".50" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="chips">
+                    <button class="increment"></button>
+                </div>
+            </li>
+            <li>
+                <button class="remove"></button>
+                <h2 data-price="2.00">Postre</h2>
+                <div class="quantity">
+                    <button class="decrement"></button>
+                    <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="2.00" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="postre">
+                    <button class="increment"></button>
+                </div>
+            </li>
+            <li>
+                <button class="remove"></button>
+                <h2 data-price="1.00">Agua/Soda</h2>
+                <div class="quantity">
+                    <button class="decrement"></button>
+                    <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="1.00" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="soda">
+                    <button class="increment"></button>
+                </div>
+            </li>
+        </ul>
+        <div class="total">
+            <h1>Total</h1>
+            <input type="text" value="$0.00" data-total="0" id="total" readonly>
+        </div>
+        <div class="footer">
+            <button data-in-edit="false" class="edit">
+                <h1>Edit</h1>            
+            </button>
+            <button class="complete">
+                <h1>Complete</h1>            
+            </button>
+        </div>
+    </div>
+</body>
+</html>
