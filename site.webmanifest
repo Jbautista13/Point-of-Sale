@@ -29,6 +29,7 @@
     "background_color": "#1c1c1c",
     "display": "standalone",
     "scope": "./",
+    "id": "/Point-of-Sale/",
     "theme_color": "#1c1c1c",
     "description": "Point of Sale App, Add your own Menu and Pricing."
   }
