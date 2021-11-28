@@ -83,7 +83,7 @@ li,
     display: flex;
     align-items: center;
     border-radius: .5em;
-    margin-top: 15px;
+    margin-top: 1rem;
     padding: .5em 0.75em;
 }
 
@@ -130,9 +130,9 @@ li,
 
 .finished,
 .add {
-    height: 30px;
-    width: 28%;
-    border-radius: 20px;
+    height: 2rem;
+    aspect-ratio: 3;
+    border-radius: 1rem;
     background: #00000030;
     color: var(--font-color);
 }
@@ -212,11 +212,11 @@ li,
 }
 
 .show ~ .order {
-    margin-top: 60px;
+    margin-top: 4rem;
 }
 
 .footer {
-    margin-bottom: max(15px, env(safe-area-inset-bottom));
+    margin-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 ul {
@@ -227,8 +227,8 @@ ul {
 
 .remove {
     background: #0000001f;
-    width: 30px;
-    height: 30px;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
     position: absolute;
     right: 0;
@@ -246,7 +246,7 @@ ul {
     height: 10%;
     background: var(--font-color);
     position: absolute;
-    border-radius: 2px;
+    border-radius: .1rem;
     transform: rotate(45deg);
 }
 
@@ -256,10 +256,11 @@ ul {
 
 .add::before, .add::after {
     content: ' ';
-    width: 15px;
-    height: 2px;
+    aspect-ratio: 7.5;
+    height: 7.25%;
     background: currentColor;
     position: absolute;
+    border-radius: .1rem;
 }
 
 .add::after {
@@ -267,8 +268,8 @@ ul {
 }
 
 .decrement, .increment {
-    width: 40px;
-    height: 40px;
+    width: 3rem;
+    height: 3rem;
     background: #0000000a;
     position: relative;
     display: grid;
@@ -282,7 +283,7 @@ ul {
 }
 
 [name="Quantity"], .increment {
-    margin-left: 10px;
+    margin-left: .5rem;
 }
 
 .decrement::before, .increment::before, .increment::after {
@@ -291,7 +292,7 @@ ul {
     height: 10%;
     background: var(--font-color);
     position: absolute;
-    border-radius: 2px;
+    border-radius: .15rem;
 }
 
 .increment::after {
