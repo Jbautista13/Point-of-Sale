@@ -1,17 +1,23 @@
 
 :root {
     --background-color: #ffffff;
+    --input-background: #f3f3f3;
+    --add-item-text-color: #444444;
     --font-color: #1a1a1a;
     --reg-box-shadow: 0 .2em .4em rgb(0 0 0 / 10%), 0 0 .8em rgb(0 0 0 / 10%);
     --focus-box-shadow: 0 .25em .75em rgb(0 0 0 / 20%), 0 0 .5em rgb(0 0 0 / 20%);
+    --input-box-shadow: none;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         --background-color: #1c1c1c;
+        --input-background: #171717;
+        --add-item-text-color: #c9c9c9;
         --font-color: rgb(82.55% 84.13% 84.13%);
         --reg-box-shadow: 0 .2em .4em rgb(100% 100% 100% / 10%), 0 0 .8em rgb(100% 100% 100% / 10%);
         --focus-box-shadow: 0 .25em .75em rgb(100% 100% 100% / 20%), 0 0 .5em rgb(100% 100% 100% / 20%);
+        --input-box-shadow: 0 0 0.5rem black;
     }
 }
 
@@ -111,7 +117,7 @@ li,
 .addItem > h1 {
     font-size: 1rem;
     font-style: normal;
-    color: #444;
+    color: var(--add-item-text-color);
 }
 
 .addItem > h1:last-of-type {
@@ -337,12 +343,13 @@ input#total {
 
 input#item,
 input#price {
-    width: 15ch;
-    background: #f3f3f3;
+    width: 20ch;
+    background: var(--input-background);
     border-radius: .25rem;
     font-size: 1.5rem;
-    padding: .125em .25em;
+    padding: .25em .5em;
     font-weight: 700;
+    box-shadow: var(--input-box-shadow);
 }
 
 input:focus,
