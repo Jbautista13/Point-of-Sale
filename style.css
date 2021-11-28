@@ -36,6 +36,12 @@ body {
     color: var(--font-color);
     position: relative;
     background-color: var(--background-color);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 h1,
@@ -344,7 +350,7 @@ input#total {
 
 input#item,
 input#price {
-    width: 20ch;
+    width: 90%;
     background: var(--input-background);
     border-radius: .25rem;
     font-size: 1.5rem;
