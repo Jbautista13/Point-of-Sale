@@ -110,7 +110,7 @@ li,
 }
 
 .addItem {
-    position: absolute;
+    position: fixed;
     z-index: 1;
     width: 85vw;
     max-width: 35rem;
@@ -352,11 +352,13 @@ input#item,
 input#price {
     width: 90%;
     background: var(--input-background);
+    -webkit-appearance: none;
     border-radius: .25rem;
     font-size: 1.5rem;
     padding: .25em .5em;
     font-weight: 700;
     box-shadow: var(--input-box-shadow);
+    -webkit-box-shadow: var(--input-box-shadow);
 }
 
 input:focus,
