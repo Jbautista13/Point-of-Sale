@@ -271,6 +271,9 @@ function addHandler() {
             localStorage.setItem('numOfItems', numItems);
             editButton.dataset.order = Number(numItems) + 1;
             editButton.nextElementSibling.dataset.order = Number(numItems) + 2;
+            
+            Array.from(list.lastChild.lastChild.children).forEach(input => {input.disabled = true;});
+
             list.lastChild.querySelector('input').addEventListener('input', event => {
                 let totalDisp = document.querySelector('#total');
                 let item = event.target;
@@ -304,9 +307,9 @@ function createListItem(name, price, order)
     let listItem = `        <button onclick="remove(this)" class="remove hidden" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
         <h2 data-price="` + price + `">` + name + `</h2>
         <div class="quantity">
-            <button onclick="decrementCounter(this)" class="decrement" tabindex="-1" disabled></button>
-            <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1" disabled>
-            <button onclick="incrementCounter(this)" class="increment" tabindex="-1" disabled></button>
+            <button onclick="decrementCounter(this)" class="decrement" tabindex="-1"></button>
+            <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1">
+            <button onclick="incrementCounter(this)" class="increment" tabindex="-1"></button>
         </div>`
     return listItem;
 }
@@ -314,7 +317,7 @@ function createListItem(name, price, order)
 function showElement(element)
 {
     element.classList.remove('hidden');
-    console.log(element.offsetWidth);
+    element.offsetWidth;
     element.classList.add('show');
 }
 
