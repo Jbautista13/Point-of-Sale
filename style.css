@@ -26,6 +26,7 @@ body {
   height: 100%;
   width: 100%;
   margin: 0;
+  touch-action: manipulation;
 }
 
 body {
@@ -480,6 +481,6 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .order:not(.show) {
-    margin-top: calc(-1rem * var(--num-of-items) * 7.35 - 1rem) !important;
+    margin-top: calc(-1rem * var(--num-of-items) * 7.15 - 1rem) !important;
   }
 }

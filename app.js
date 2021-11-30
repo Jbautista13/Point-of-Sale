@@ -1,5 +1,6 @@
 var removeButtons;
 var editButton;
+var animating = {};
 
 var numItems = localStorage.getItem('numOfItems');
 
@@ -316,6 +317,8 @@ function createListItem(name, price, order)
 
 function showElement(element)
 {
+    console.log(animating[element.classList[0]]);
+    while (animating[element.classList[0]] == true) {}
     element.classList.remove('hidden');
     element.offsetWidth;
     element.classList.add('show');
@@ -323,12 +326,16 @@ function showElement(element)
 
 function hideElement(element, transition)
 {
+    if (animating[element.classList[0]] == true) return;
+    animating[element.classList[0]] == true;
+    console.log(animating[element.classList[0]]);
     element.classList.remove('show');
     element.addEventListener('transitionend', function hide(event) {
         if (transition == "any" || event.propertyName == transition)
         {
             element.classList.add('hidden');
             element.removeEventListener('transitionend', hide);
+            animating[element.classList[0]] == false;
         }
     });
 }
