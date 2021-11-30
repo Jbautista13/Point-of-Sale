@@ -6,6 +6,8 @@ var numItems = localStorage.getItem('numOfItems');
 if(numItems == null)
     numItems = 0;
 
+document.querySelector(':root').style.setProperty('--num-of-items', Number(numItems));
+
 function incrementCounter(button) {
     let item = button.previousElementSibling;
     item.stepUp();
@@ -20,7 +22,6 @@ function decrementCounter(button) {
 
 window.onload = function() {
     
-    var items = document.querySelectorAll('[name="Quantity"]');
     editButton = document.querySelector('.edit');
     let done = document.querySelector('.finished');
     let add = document.querySelector('.add');
@@ -63,23 +64,29 @@ window.onload = function() {
         let controls = document.querySelector('.controls');
 
         const currentlyEditing = editButton.dataset.inEdit;
+        const finishingOrder = document.querySelector('.total').dataset.inTransition;
 
-        if (currentlyEditing == "true") {
-            controls.classList.remove('show');
+        if (finishingOrder == "true") {
+            continueOrder(editButton);
+        }
+        else if (currentlyEditing == "true") {
+            hideElement(controls, 'any');
             removeButtons.forEach( button => {
-                button.classList.remove('show');
+                hideElement(button, 'any');
                 button.disabled = true;
             });
             finishButton.disabled = false;
+            enableMenuItems();
             editButton.dataset.inEdit = false;
         }
         else {
-            controls.classList.add('show');
+            showElement(controls);
             removeButtons.forEach( button => {
-                button.classList.add('show');
+                showElement(button);
                 button.disabled = false;
             });
             finishButton.disabled = true;
+            disableMenuItems();
             editButton.dataset.inEdit = true;
         }
     });
@@ -88,30 +95,58 @@ window.onload = function() {
 
 var formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
-function finishOrder() {
-    let total = document.querySelector('#total');
+function finishOrder(completeButton) {
+    let items = document.querySelectorAll('li');
+    let total = document.querySelector('.total');
+    let totalValue = document.querySelector('#total').dataset.total;
+    let container = document.querySelector('.container');
+    let backButton = completeButton.previousElementSibling;
     const inTransition = total.dataset.inTransition;
 
-    if (inTransition == "true" || total.dataset.total == "0"){
+    if (totalValue == "0") {
+    }
+    else if (inTransition == "true") {
+        clearOrder();
+        showElement(document.querySelector('.order'));
+        items.forEach( item => item.tabIndex = "0");
+        total.dataset.inTransition = "false";
+        backButton.firstElementChild.innerText = "Edit";
+        completeButton.firstElementChild.innerText = "Complete";
     }
     else {
+        items.forEach( item => item.tabIndex = "-1");
         total.dataset.inTransition = "true";
-        document.querySelectorAll('[name="Quantity"]').forEach(input => {
-            input.classList.add('hidden');
-            total.classList.add('hidden');
-            setTimeout(function () {
-                input.value = 0;
-                input.classList.remove('hidden');
-                total.classList.remove('hidden');
-                input.dispatchEvent(new Event('input'));            
-                total.dataset.inTransition = "false";
-            }, 125);
-        });
+        hideElement(document.querySelector('.order'), 'margin-top');
+        backButton.firstElementChild.innerText = "Back";
+        completeButton.firstElementChild.innerText = "Finish";
     }
 }
 
-function changeValue(element, value) {
-    
+function continueOrder(backButton) {
+    let items = document.querySelectorAll('li');
+    let total = document.querySelector('.total');
+    let container = document.querySelector('.container');
+    let completeButton = backButton.nextElementSibling;
+    showElement(document.querySelector('.order'));
+    items.forEach( item => item.tabIndex = "0");
+    total.dataset.inTransition = "false";
+    backButton.firstElementChild.innerText = "Edit";
+    completeButton.firstElementChild.innerText = "Complete";
+
+}
+
+function clearOrder() {
+    let total = document.querySelector('#total');
+    document.querySelectorAll('[name="Quantity"]').forEach(input => {
+        input.classList.add('fadeout');
+        total.classList.add('fadeout');
+        setTimeout(function () {
+            input.value = 0;
+            input.classList.remove('fadeout');
+            total.classList.remove('fadeout');
+            input.dispatchEvent(new Event('input'));
+        }, 125);
+    });
 }
 
 function reOrder() {
@@ -142,8 +177,6 @@ function remove(removeButton) {
     let orderTotal = Number(total) - (quantity * price);
     let itemOrder = listItem.dataset.order;
 
-    console.log(itemOrder);
-
     for (var i = itemOrder; i < numItems; i++)
     {
         //Next item and price
@@ -157,30 +190,29 @@ function remove(removeButton) {
     totalDisp.value = formatter.format(orderTotal);
     totalDisp.dataset.total = orderTotal;
     numItems = Number(numItems) - 1;
+    document.documentElement.style.setProperty('--num-of-items', Number(numItems));
 
     localStorage.removeItem('itemName' + numItems);
     localStorage.removeItem('itemPrice' + numItems);
 
     listItem.outerHTML = "";
     localStorage.setItem('numOfItems', numItems);
-    items = document.querySelectorAll('[name="Quantity"]');
-    console.log(items);
     reOrder();
     removeButtons = document.querySelectorAll('.remove');
 }
 
-function finished(event) {
+function finished() {
     document.querySelector('.edit').dispatchEvent(new Event('click'));
 };
 
-function addHandler(event) {
+function addHandler() {
     let form = document.querySelector('.addItem');
     let list = document.querySelector('.order');
     let controls = document.querySelector('.controls').children;
     let items = document.querySelectorAll('li');
 
     removeButtons.forEach( button => {
-        button.classList.remove('show');
+        hideElement(button, 'any');
         button.disabled = true;
     });
 
@@ -192,21 +224,21 @@ function addHandler(event) {
     form.dataset.adding = "true";
     editButton.disabled = true;
 
-    form.classList.add('show');
+    showElement(form);
     let cancel = document.querySelector('.cancel');
     let confirm = document.querySelector('.confirm');
     let name = document.querySelector('#item');
     let price = document.querySelector('#price');
     name.focus();
     cancel.addEventListener('click', function cancel(event) {
-        form.classList.remove('show');
+        hideElement(form, 'any');
         confirm.removeEventListener('click', confirm);
 
         name.value = "";
         price.value = "";
 
         removeButtons.forEach( button => {
-            button.classList.add('show');
+            showElement(button);
             button.disabled = false;
         });
         items.forEach( item => item.tabIndex = "0");
@@ -226,7 +258,7 @@ function addHandler(event) {
             if (fPrice[1].value == 0)
                 fPrice[1].value = '';
             let item = document.createElement('li');
-            item.tabIndex = 0;
+            item.tabIndex = "-1";
             item.dataset.order = Number(numItems) + 1;
             item.innerHTML = createListItem(name.value, fPrice[1].value + fPrice[2].value + fPrice[3].value, numItems);
             list.appendChild(item);
@@ -235,6 +267,7 @@ function addHandler(event) {
             name.value = "";
             price.value = "";
             numItems = Number(numItems) + 1;
+            document.documentElement.style.setProperty('--num-of-items', Number(numItems));
             localStorage.setItem('numOfItems', numItems);
             editButton.dataset.order = Number(numItems) + 1;
             editButton.nextElementSibling.dataset.order = Number(numItems) + 2;
@@ -252,22 +285,82 @@ function addHandler(event) {
                 item.dataset.quantity = newQuantity;
             })
             removeButtons = document.querySelectorAll('.remove');
+            items = document.querySelectorAll('li');
         }
     });
     
 }
 
+
+/* ---------------- */
+/* ---------------- */
+/* Helper Functions */
+/* ---------------- */
+/* ---------------- */
+
+
 function createListItem(name, price, order)
 {
-    let listItem = `        <button onclick="remove(this)" class="remove" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
+    let listItem = `        <button onclick="remove(this)" class="remove hidden" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
         <h2 data-price="` + price + `">` + name + `</h2>
         <div class="quantity">
-            <button onclick="decrementCounter(this)" class="decrement" tabindex="-1"></button>
-            <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1">
-            <button onclick="incrementCounter(this)" class="increment" tabindex="-1"></button>
+            <button onclick="decrementCounter(this)" class="decrement" tabindex="-1" disabled></button>
+            <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1" disabled>
+            <button onclick="incrementCounter(this)" class="increment" tabindex="-1" disabled></button>
         </div>`
     return listItem;
 }
+
+function showElement(element)
+{
+    element.classList.remove('hidden');
+    console.log(element.offsetWidth);
+    element.classList.add('show');
+}
+
+function hideElement(element, transition)
+{
+    element.classList.remove('show');
+    element.addEventListener('transitionend', function hide(event) {
+        if (transition == "any" || event.propertyName == transition)
+        {
+            element.classList.add('hidden');
+            element.removeEventListener('transitionend', hide);
+        }
+    });
+}
+
+function disableMenuItems()
+{
+    Array.from(document.querySelectorAll('.quantity')).forEach( item => 
+    {
+        Array.from(item.children).forEach(input =>
+        {
+            input.disabled = true;
+        }
+        );
+    } );
+}
+
+function enableMenuItems()
+{
+    Array.from(document.querySelectorAll('.quantity')).forEach( item => 
+    {
+        Array.from(item.children).forEach(input =>
+        {
+            input.disabled = false;
+        }
+        );
+    } );
+}
+
+
+/* -------------- */
+/* -------------- */
+/* Keyboard Input */
+/* -------------- */
+/* -------------- */
+
 
 document.addEventListener('keydown', press => {
     const UP = "ArrowUp";
@@ -280,13 +373,16 @@ document.addEventListener('keydown', press => {
     const D = "KeyD";
     const SPACE = "Space";
     const ENTER = "Enter";
+    const BACK = "Backspace";
+    const EXIT = "Escape";
     const currentElement = document.activeElement;
     const currentlyEditing = editButton.dataset.inEdit;
+    const finishingOrder = document.querySelector('.total').dataset.inTransition;
     const addingItem = document.querySelector('.addItem').dataset.adding;
 
     let keyPressed = press.code;
 
-    if (!keyPressed || keyPressed.indexOf('Numpad') != -1) {
+    if (!keyPressed || keyPressed.indexOf('Numpad') != -1 || keyPressed.indexOf('Digit') != -1) {
         keyPressed = press.key;
         switch(press.key) {
             case 'w':
@@ -308,32 +404,85 @@ document.addEventListener('keydown', press => {
         }
     }
 
-    if(currentlyEditing != "true")
+    if (finishingOrder == "true")
+    {
+        if (currentElement.parentElement.matches('.footer'))
+        {
+            const position = currentElement.dataset.order;
+
+            switch(keyPressed) {
+                case LEFT:
+                case A:
+                    if (position != Number(numItems) + 1)
+                        document.querySelector('[data-order="' + (Number(position) - 1) + '"]').focus();
+                    break;
+                case RIGHT:
+                case D:
+                    if (position != Number(numItems) + 2)
+                        document.querySelector('[data-order="' + (Number(position) + 1) + '"]').focus();
+                    break;
+                case BACK:
+                    document.querySelector('.edit').click();
+            }
+        }
+        else
+        {
+
+            switch(keyPressed) {
+                case LEFT:
+                case A:
+                case RIGHT:
+                case D:
+                    document.querySelector('[data-order="' + (Number(numItems) + 1) + '"]').focus();
+                    break;
+                case BACK:
+                    document.querySelector('.edit').click();
+                    break;
+                case ENTER:
+                    document.querySelector('.complete').click();
+            }
+        }
+    }
+    else if(currentlyEditing != "true")
     {
         if (currentElement.matches('li'))
         {
             const position = currentElement.dataset.order;
 
-            switch(keyPressed) {
-                case UP:
-                case W:
-                    if (position != 1)
-                        document.querySelector('[data-order="' + (Number(position) - 1) + '"]').focus();
-                    break;
-                case DOWN:
-                case S:
-                    document.querySelector('[data-order="' + (Number(position) + 1) + '"]').focus();
-                    break;
-                case LEFT:
-                case A:
-                    decrementCounter(currentElement.querySelector('.decrement'));
-                    break;
-                case RIGHT:
-                case D:
-                    incrementCounter(currentElement.querySelector('.increment'));
-                    break;
-                case ENTER:
-                    document.querySelector('.complete').click();
+            if (isFinite(keyPressed)) {
+                let numOfItems = currentElement.querySelector('input');
+                numOfItems.value = (numOfItems.value == "0" ? keyPressed : numOfItems.value.slice(0, -1) + keyPressed)
+                numOfItems.dispatchEvent(new Event('input'));
+            }
+            else
+            {
+                switch(keyPressed) {
+                    case UP:
+                    case W:
+                        if (position != 1)
+                            document.querySelector('[data-order="' + (Number(position) - 1) + '"]').focus();
+                        break;
+                    case DOWN:
+                    case S:
+                        document.querySelector('[data-order="' + (Number(position) + 1) + '"]').focus();
+                        break;
+                    case LEFT:
+                    case A:
+                        decrementCounter(currentElement.querySelector('.decrement'));
+                        break;
+                    case RIGHT:
+                    case D:
+                        incrementCounter(currentElement.querySelector('.increment'));
+                        break;
+                    case ENTER:
+                        document.querySelector('.complete').click();
+                        break;
+                    case BACK:
+                        let numOfItems = currentElement.querySelector('input');
+                        numOfItems.value = (numOfItems.value.length == 1 ? 0 : numOfItems.value.slice(0, -1));
+                        numOfItems.dispatchEvent(new Event('input'));
+                        break;
+                }
             }
         }
         else if (currentElement.parentElement.matches('.footer'))
@@ -344,9 +493,6 @@ document.addEventListener('keydown', press => {
                 case UP:
                 case W:
                     document.querySelector('[data-order="' + numItems + '"]').focus();
-                    break;
-                case DOWN:
-                case S:
                     break;
                 case LEFT:
                 case A:
@@ -363,6 +509,8 @@ document.addEventListener('keydown', press => {
         else {
             if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D)
                 document.querySelector('[data-order="1"]').focus();
+            else if (keyPressed == ENTER)
+                document.querySelector('.complete').click();
         }
     }
     else if (addingItem == "true") {
@@ -372,6 +520,8 @@ document.addEventListener('keydown', press => {
             else if (currentElement.matches('#price'))
                 document.querySelector('.confirm').click();
         }
+        else if (keyPressed == EXIT)
+            document.querySelector('.cancel').click();
     }
     else {
         if (currentElement.matches('li') || currentElement.matches('.remove'))
@@ -387,6 +537,8 @@ document.addEventListener('keydown', press => {
                 case S:
                     if (position != (numItems))
                         document.querySelector('[data-order="' + (Number(position) + .5) + '"]').focus();
+                    else
+                        document.querySelector('.edit').focus();
                     break;
                 case LEFT:
                 case A:
@@ -396,15 +548,15 @@ document.addEventListener('keydown', press => {
                 case D:
                     incrementCounter(currentElement.querySelector('.increment'));
                     break;
+                case EXIT:
+                    finished();
+                    break;
             }
         }
         else if (currentElement.parentElement.matches('.controls'))
         {
             const position = currentElement.dataset.order;
             switch(keyPressed) {
-                case UP:
-                case W:
-                    break;
                 case DOWN:
                 case S:
                     document.querySelector('[data-order="0.5"]').focus();
@@ -419,11 +571,23 @@ document.addEventListener('keydown', press => {
                     if (position != 0)
                         document.querySelector('[data-order="' + (Number(position) + .5) + '"]').focus();
                     break;
+                case EXIT:
+                    finished();
+                    break;
             }
+        }
+        else if (currentElement.matches('.edit'))
+        {
+            if (keyPressed == UP)
+                document.querySelector('[data-order="' + numItems + '"]').focus();
+            else if (keyPressed == EXIT)
+                finished();
         }
         else {
             if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D)
                 document.querySelector('[data-order="1"]').focus();
+            else if (keyPressed == EXIT)
+                finished();
         }
     }
 })
