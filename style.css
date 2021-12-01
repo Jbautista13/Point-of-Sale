@@ -15,9 +15,9 @@
     --input-background: #171717;
     --add-item-text-color: #c9c9c9;
     --font-color: rgb(82.55% 84.13% 84.13%);
-    --reg-box-shadow: 0 .2em .4em rgb(100% 100% 100% / 10%), 0 0 .8em rgb(100% 100% 100% / 10%);
-    --focus-box-shadow: 0 .25em .75em rgb(100% 100% 100% / 20%), 0 0 .5em rgb(100% 100% 100% / 20%);
-    --input-box-shadow: 0 0 0.5rem #00000096;
+    --reg-box-shadow: 0 .2em .4em rgb(0 0 0 / 20%), 0 0 .8em rgb(0 0 0 / 20%);
+    --focus-box-shadow: 0 .25em .75em rgb(0 0 0 / 40%), 0 0 .5em rgb(0 0 0 / 40%);
+    --input-box-shadow: 0 .025rem 0.5rem rgb(0 0 0 / 20%);
   }
 }
 
