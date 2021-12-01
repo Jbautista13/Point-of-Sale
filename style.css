@@ -41,6 +41,10 @@ body {
   -ms-overflow-style: none;
 }
 
+body.no-scroll {
+  overflow-y: hidden;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }

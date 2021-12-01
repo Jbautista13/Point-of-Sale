@@ -76,8 +76,8 @@ window.onload = function() {
                 hideElement(button, 'any');
                 button.disabled = true;
             });
-            finishButton.disabled = false;
             enableMenuItems();
+            finishButton.disabled = false;
             editButton.dataset.inEdit = false;
         }
         else {
@@ -86,8 +86,9 @@ window.onload = function() {
                 showElement(button);
                 button.disabled = false;
             });
-            finishButton.disabled = true;
+            
             disableMenuItems();
+            finishButton.disabled = true;
             editButton.dataset.inEdit = true;
         }
     });
@@ -211,11 +212,14 @@ function addHandler() {
     let list = document.querySelector('.order');
     let controls = document.querySelector('.controls').children;
     let items = document.querySelectorAll('li');
+    let body = document.querySelector('body');
 
     removeButtons.forEach( button => {
         hideElement(button, 'any');
         button.disabled = true;
     });
+
+    body.classList.add('no-scroll');
 
     items.forEach( item => item.tabIndex = "-1");
 
@@ -242,6 +246,7 @@ function addHandler() {
             showElement(button);
             button.disabled = false;
         });
+        body.classList.remove('no-scroll');
         items.forEach( item => item.tabIndex = "0");
         controls[0].disabled = false;
         controls[1].disabled = false;
