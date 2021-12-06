@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no , viewport-fit=cover">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="./images/icon_192.png" type="image/png">
+  <link rel="apple-touch-icon" href="./images/apple-touch-icon.png">
+  
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Point of Sale: Calculate Order Prices Quickly</title>
+  <script type="module" crossorigin src="assets/index.1cbc34e7.js"></script>
+  <link rel="modulepreload" href="assets/vendor.c27de078.js">
+  <link rel="stylesheet" href="assets/index.9f47331f.css">
+</head>
+<body>
+  <div class="modal information clear-menu hidden">
+    <div class="modal-title">
+      <h2>Clear Menu Items</h2>
+    </div>
+    <div class="modal-content">
+      <h3>Are you sure you'd like to clear the menu?</h3>
+    </div>
+    <div class="footer_modal">
+      <button id="cancel-menu-item" class="cancel">Cancel</button>
+      <button id="confirm-clear-menu" class="confirm">Clear Menu</button></div>
+  </div>
+  <div data-adding="false" class="modal addItem hidden">
+    <div class="modal-title">
+      <h2>Add Menu Item</h2>
+    </div>
+    <div class="modal-content">
+        <h3>Name</h3>
+        <input type="text" value="" data-total="0" id="item">
+        <h3>Price</h3>
+        <input type="text" inputmode="decimal" value="" data-total="0" id="price">
+    </div>
+    <div class="footer_modal">
+      <button id="cancel-add-item" class="cancel">Cancel</button>
+      <button id="confirm-add-item" class="confirm">Add Item</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="controls hidden">
+      <button class="add" data-order="-0.5">
+      </button>
+      <button class="finished" data-order="0">
+        <h1>Done</h1>            
+      </button>
+    </div>
+    <ul class="order hidden">
+    </ul>
+    <div class="price_footer">
+      <div class="total">
+        <h1>Total</h1>
+        <input type="text" value="$0.00" data-total="0" id="total" readonly tabindex="-1">
+      </div>
+      <div class="footer">
+        <button data-in-edit="false" data-order="1" class="edit" tabindex="0">
+          <h1>Edit</h1>            
+        </button>
+        <button data-order="2" class="complete" tabindex="0">
+          <h1>Complete</h1>            
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

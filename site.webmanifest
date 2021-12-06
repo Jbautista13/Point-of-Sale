@@ -1,0 +1,35 @@
+{
+    "short_name": "Point of Sale",
+    "name": "Point of Sale: Calculate Order Prices Quickly",
+    "icons": [
+      {
+        "src": "./images/android-chrome-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "./images/android-chrome-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      },
+      {
+        "purpose": "maskable",
+        "src": "./images/maskable_icon_x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "purpose": "maskable",
+        "src": "./images/maskable_icon_x512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "https://jbautista13.github.io/Point-of-Sale/",
+    "background_color": "#1c1c1c",
+    "display": "standalone",
+    "scope": "./",
+    "id": "/Point-of-Sale/",
+    "theme_color": "#1c1c1c",
+    "description": "Point of Sale App, Add your own Menu and Pricing."
+  }
