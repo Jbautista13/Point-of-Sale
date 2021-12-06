@@ -21,6 +21,8 @@ var {numOfItems, names, prices, theme} = data;
 
 theme = theme || "system";
 
+updateTheme();
+
 document.querySelector(':root').dataset.theme = theme;
 document.querySelector(':root').style.setProperty('--num-of-items', Number(numOfItems));
 
@@ -259,6 +261,7 @@ function addHandler() {
 function changeTheme(event)
 {
     theme = event.currentTarget.dataset.themeName;
+    updateTheme();
     document.querySelector(':root').dataset.theme = theme;
     localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
     console.log(event.currentTarget); 
@@ -438,6 +441,30 @@ function reOrderStorage(oldIndex, newIndex)
     prices.splice(newIndex, 0, itemPrice);
     localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
     reOrder();
+}
+
+function updateTheme()
+{
+    switch(theme) {
+        case 'light':
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
+            break;
+        case 'dark':
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
+            break;
+        case 'system':
+            if (!window.matchMedia)
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
+            else
+            {
+                if(window.matchMedia('(prefers-color-scheme: dark').matches)
+                    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
+                else
+                    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
+            }
+            break;
+    
+    }
 }
 
 function finished() { document.querySelector('.edit').dispatchEvent(new Event('click')); };
