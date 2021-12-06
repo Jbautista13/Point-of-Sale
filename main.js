@@ -233,7 +233,7 @@ function addHandler() {
     showElement(form);
     
     let cancel = document.querySelector('#cancel-add-item');
-    let confirm = document.querySelector('.confirm');
+    let confirm = document.querySelector('#confirm-add-item');
     let name = document.querySelector('#item');
     let price = document.querySelector('#price');
 
@@ -264,7 +264,6 @@ function confirmAddItem() {
     let form = document.querySelector('.addItem');
     let list = document.querySelector('.order');
     let cancel = document.querySelector('#cancel-add-item');
-    let confirm = document.querySelector('.confirm');
     let name = document.querySelector('#item');
     let price = document.querySelector('#price');
 
@@ -596,7 +595,7 @@ document.addEventListener('keydown', press => {
             if (currentElement.matches('#item'))
                 document.querySelector('#price').focus();
             else if (currentElement.matches('#price'))
-                document.querySelector('.confirm').click();
+                document.querySelector('#confirm-add-item').click();
         }
         else if (keyPressed == EXIT)
             document.querySelector('#cancel-add-item').click();
