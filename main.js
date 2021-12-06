@@ -16,14 +16,12 @@ var sortable = Sortable.create(el, {
 var removeButtons;
 var editButton;
 
-var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: []};
-var {numOfItems, names, prices} = data;
+var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: "system"};
+var {numOfItems, names, prices, theme} = data;
 
-var numItems = localStorage.getItem('numOfItems');
+theme = theme || "system";
 
-if(numItems == null)
-    numItems = 0;
-
+document.querySelector(':root').dataset.theme = theme;
 document.querySelector(':root').style.setProperty('--num-of-items', Number(numOfItems));
 
 function incrementCounter(event) {
@@ -47,10 +45,12 @@ window.onload = function() {
     let add = document.querySelector('.add');
     let list = document.querySelector('.order');
     let finishButton = document.querySelector('.complete');
+    let themeButtons = document.querySelectorAll('.theme-button');
 
     done.addEventListener('click', finished);
     add.addEventListener('click', addHandler);
     finishButton.addEventListener('click', finishOrder);
+    themeButtons.forEach(button => { button.addEventListener('click', changeTheme); });
 
     //add previously saved items
     for (var i = 0; i < numOfItems; i++)
@@ -73,6 +73,7 @@ window.onload = function() {
         let editButton = event.target;
         let controls = document.querySelector('.controls');
         let items = document.querySelectorAll('li');
+        let themeControls = document.querySelector('.theme-picker');
 
         const currentlyEditing = editButton.dataset.inEdit;
         const finishingOrder = document.querySelector('.total').dataset.inTransition;
@@ -82,6 +83,7 @@ window.onload = function() {
         }
         else if (currentlyEditing == "true") { // User wants to exit edit mode
             hideElement(controls, 'any');
+            hideElement(themeControls, 'margin-top');
             removeButtons.forEach( button => {
                 hideElement(button, 'any');
                 button.disabled = true;
@@ -94,6 +96,7 @@ window.onload = function() {
         }
         else { // User wants to edit menu
             showElement(controls);
+            showElement(themeControls);
             removeButtons.forEach( button => {
                 showElement(button);
                 button.disabled = false;
@@ -204,7 +207,7 @@ function remove(event) {
     document.documentElement.style.setProperty('--num-of-items', Number(numOfItems));
 
     listItem.outerHTML = "";
-    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices}));
+    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
     reOrder();
     removeButtons = document.querySelectorAll('.remove');
 }
@@ -253,6 +256,14 @@ function addHandler() {
     confirm.addEventListener('click', confirmAddItem);   
 }
 
+function changeTheme(event)
+{
+    theme = event.currentTarget.dataset.themeName;
+    document.querySelector(':root').dataset.theme = theme;
+    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
+    console.log(event.currentTarget); 
+}
+
 
 /* ---------------- */
 /* ---------------- */
@@ -289,7 +300,7 @@ function confirmAddItem() {
 
         numOfItems = Number(numOfItems) + 1;
         document.documentElement.style.setProperty('--num-of-items', Number(numOfItems));
-        localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices}));
+        localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
 
         name.value = "";
         price.value = "";
@@ -425,7 +436,7 @@ function reOrderStorage(oldIndex, newIndex)
     prices.splice(oldIndex, 1);
     names.splice(newIndex, 0, itemName);
     prices.splice(newIndex, 0, itemPrice);
-    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices}));
+    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
     reOrder();
 }
 
