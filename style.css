@@ -185,19 +185,19 @@ button.theme-button:focus-visible {
   border-width: 0 0.625rem 0.75rem 0.625rem;
   border-color: transparent;
   border-bottom-color: var(--font-color);
-  transition: margin-left .4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  transition: transform .4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
 [data-theme="system"] .theme-picker:after {
-  margin-left: 14rem;
+  transform: translateX(7rem);
 }
 
 [data-theme="light"] .theme-picker:after {
-  margin-left: -14rem;
+  transform: translateX(-7rem);
 }
 
 [data-theme="dark"] .theme-picker:after {
-  margin-left: 0rem;
+  transform: translateX(0);
 }
 
 [data-theme="system"] #system-theme:hover,
