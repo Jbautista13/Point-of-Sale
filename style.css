@@ -46,13 +46,13 @@ body {
   height: 100%;
   width: 100%;
   margin: 0;
+  font-family: "Lato", sans-serif;
   touch-action: manipulation;
 }
 
 body {
   display: grid;
   place-items: center;
-  font-family: "Lato", sans-serif;
   overflow-y: scroll;
   color: var(--font-color);
   position: relative;
@@ -94,6 +94,7 @@ h3 {
 
 button {
     font-weight: 900;
+    font-family: 'Lato';
 }
 
 li > h2::after {
@@ -120,7 +121,7 @@ li > h2::after {
 }
 
 .theme-picker.show ~ .container {
-    margin-top: calc(env(safe-area-inset-top) + 8rem);
+    margin-top: calc(env(safe-area-inset-top) + 8rem + 2px);
 }
 
 .order:not(.show) {
@@ -138,12 +139,12 @@ li > h2::after {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-top: calc(-1 * (env(safe-area-inset-top) + 8rem));
+  margin-top: calc(-1 * (env(safe-area-inset-top) + 8rem + 2px));;
   padding-top: env(safe-area-inset-top);
   z-index: 2;
   transition: filter 250ms ease-out, margin-top .4s cubic-bezier(.4,0,.2,1) 100ms;
   will-change: margin-top;
-  box-shadow: 0 0 .875rem #0b0b0ba8;
+  box-shadow: 0 2px var(--font-color);
 }
 
 .theme-picker.show {
@@ -162,6 +163,7 @@ button.theme-button {
   padding: 1rem;
   transform: scale(1);
   transition: transform .2s ease-out;
+  font-family: 'Lato';
 }
 
 button.theme-button:hover,
@@ -460,20 +462,28 @@ ul {
   padding: 0;
 }
 
-.remove {
+.menu-item-control {
   background: #0000001f;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
   position: absolute;
-  right: 0;
   top: 0;
-  transform: translate(40%,-35%);
   display: grid;
   place-items: center;
   opacity: 0;
   -webkit-transition: opacity 125ms ease-out;
   transition: opacity 125ms ease-out;
+}
+
+.edit-menu-item {
+  right: 0;
+  transform: translate(40%,-35%);
+}
+
+.remove {
+  left: 0;
+  transform: translate(-40%,-35%);
 }
 
 .remove::before, .remove::after {
@@ -567,7 +577,8 @@ input[type='text'],
 input[type='number'],
 textarea {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-family: 'Lato';
+  font-weight: 900;
   border-radius: 15px;
   padding-left: 10px;
   padding-right: 10px;
@@ -595,7 +606,7 @@ input#price {
   border-radius: .25rem;
   font-size: 1.5rem;
   padding: .25em .5em;
-  font-weight: 700;
+  font-weight: 900;
   -webkit-box-shadow: var(--input-box-shadow);
   box-shadow: var(--input-box-shadow);
 }
