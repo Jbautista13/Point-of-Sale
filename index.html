@@ -2,7 +2,7 @@
 <html data-theme="system" lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no , viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#1c1c1c">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -14,6 +14,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Point of Sale: Calculate Order Prices Quickly</title>
+  <meta name="description" content="Point of Sale App, Add your own Menu and Pricing.">
 </head>
 <body>
   <div class="modal information clear-menu hidden">
@@ -43,7 +44,7 @@
     </div>
   </div>
   <div class="theme-picker hidden">
-    <button data-theme-name="light" class="theme-button" id="light-theme">
+    <button aria-label="Change theme to Light" data-theme-name="light" class="theme-button" id="light-theme">
       <span class="svg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -51,7 +52,7 @@
       </span>
       <span class="theme-name">Light</span>
     </button>
-    <button data-theme-name="dark" class="theme-button" id="dark-theme">
+    <button aria-label="Change theme to Dark" data-theme-name="dark" class="theme-button" id="dark-theme">
       <span class="svg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
@@ -59,7 +60,7 @@
       </span>
       <span class="theme-name">Dark</span>
     </button>
-    <button data-theme-name="system" class="theme-button" id="system-theme">
+    <button aria-label="Change theme to follow System Setting" data-theme-name="system" class="theme-button" id="system-theme">
       <span class="svg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -70,24 +71,24 @@
   </div>
   <div class="container">
     <div class="controls hidden">
-      <button class="add" data-order="-0.5">
+      <button aria-label="Add new item" class="add" data-order="-0.5">
       </button>
-      <button class="finished" data-order="0">
+      <button aria-label="Finish Editing" class="finished" data-order="0">
         <h1>Done</h1>            
       </button>
     </div>
-    <ul class="order hidden">
+    <ul aria-label="Menu Items" class="order hidden">
     </ul>
     <div class="price_footer">
       <div class="total">
         <h1>Total</h1>
-        <input type="text" value="$0.00" data-total="0" id="total" readonly tabindex="-1">
+        <input aria-label="Price of Order" type="text" value="$0.00" data-total="0" id="total" readonly tabindex="-1">
       </div>
       <div class="footer">
-        <button data-in-edit="false" data-order="1" class="edit" tabindex="0">
+        <button aria-label="Edit menu and theme" data-in-edit="false" data-order="1" class="edit" tabindex="0">
           <h1>Edit</h1>            
         </button>
-        <button data-order="2" class="complete" tabindex="0">
+        <button aria-label="Complete order" data-order="2" class="complete" tabindex="0">
           <h1>Complete</h1>            
         </button>
       </div>

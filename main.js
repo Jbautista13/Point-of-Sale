@@ -1,5 +1,8 @@
 import Sortable from 'sortablejs';
 
+if ((window.navigator.standalone) || (window.matchMedia('(display-mode: standalone)').matches))
+        $('#viewport').attr('content', 'width=device-width, initial-scale=1.0, user-scalable=no')
+
 var el = document.querySelector('ul');
 var sortable = Sortable.create(el, {
     onStart: function (evt) {
@@ -321,12 +324,12 @@ function confirmAddItem() {
 
 function createListItem(name, price, order)
 {
-    let listItem = `        <button class="remove hidden" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
+    let listItem = `        <button aria-label="Remove ` + name + ` Menu Item" class="menu-item-control remove hidden" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
         <h2 data-price="` + price + `">` + name + `</h2>
         <div class="quantity">
-            <button class="decrement" tabindex="-1"></button>
-            <input type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1">
-            <button class="increment" tabindex="-1"></button>
+            <button aria-label="Decrement ` + name + `" class="decrement" tabindex="-1"></button>
+            <input aria-label="Number of ` + name + `" type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1">
+            <button aria-label="Increment ` + name + `" class="increment" tabindex="-1"></button>
         </div>`
     return listItem;
 }
