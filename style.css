@@ -278,7 +278,7 @@ li,
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--background-color);
-  width: 85vw;
+  width: clamp(85vw, 30rem, 100%);
   max-width: 35rem;
   display: flex;
   flex-direction: column;
@@ -292,7 +292,7 @@ li,
   box-shadow: var(--reg-box-shadow);
 }
 
-.information .modal-title {
+.modal-title {
   margin-top: .75rem;
 }
 
@@ -416,7 +416,8 @@ button#confirm-add-item:hover {
 
 .footer_modal {
   justify-content: flex-end;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: .5rem;
 }
 
 .controls,
@@ -600,7 +601,7 @@ input#total {
 
 input#item,
 input#price {
-  width: 90%;
+  width: clamp(90%, 30rem, 100%);
   background: var(--input-background);
   -webkit-appearance: none;
   appearance: none;
@@ -655,7 +656,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
   .footer_modal > * h3,
   .footer h1,
-  .controls h1 {
+  .controls h1,
+  .modal-content h3:not(:first-child) {
     margin-block-start: revert;
   }
 
