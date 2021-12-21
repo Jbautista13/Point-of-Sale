@@ -1,7 +1,7 @@
 import Sortable from 'sortablejs';
 
 if ((window.navigator.standalone) || (window.matchMedia('(display-mode: standalone)').matches))
-        $('#viewport').attr('content', 'width=device-width, initial-scale=1.0, user-scalable=no')
+        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no')
 
 var el = document.querySelector('ul');
 var sortable = Sortable.create(el, {
