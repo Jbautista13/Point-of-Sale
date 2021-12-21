@@ -479,6 +479,7 @@ ul {
 .edit-menu-item {
   right: 0;
   transform: translate(40%,-35%);
+  color: var(--font-color);
 }
 
 .remove {
