@@ -13,20 +13,18 @@ var sortable = Sortable.create(el, {
         reOrderStorage(evt.oldIndex, evt.newIndex);
     },
     disabled: true,
-    filter: '.remove'
+    filter: '.menu-item-control'
 });
 
 var removeButtons;
 var editButton;
 
-var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: "system"};
+var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system'};
 var {numOfItems, names, prices, theme} = data;
 
-theme = theme || "system";
+theme = theme || 'system';
 
-updateTheme();
 
-document.querySelector(':root').dataset.theme = theme;
 document.querySelector(':root').style.setProperty('--num-of-items', Number(numOfItems));
 
 function incrementCounter(event) {
@@ -69,7 +67,7 @@ window.onload = function() {
     }
     showElement(list);
 
-    removeButtons = document.querySelectorAll('.remove');
+    removeButtons = document.querySelectorAll('.item-remove-button');
 
     editButton.dataset.order = Number(numOfItems) + 1;
     editButton.nextElementSibling.dataset.order = Number(numOfItems) + 2;
@@ -192,7 +190,7 @@ function reOrder() {
 
 }
 
-function remove(event) {
+function removeItem(event) {
     let removeButton = event.target || event;
     let listItem = removeButton.parentElement;
     let item = removeButton.parentElement.querySelector('input');        
@@ -214,7 +212,7 @@ function remove(event) {
     listItem.outerHTML = "";
     localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
     reOrder();
-    removeButtons = document.querySelectorAll('.remove');
+    removeButtons = document.querySelectorAll('.item-remove-button');
 }
 
 function inputChange(event)
@@ -316,7 +314,7 @@ function confirmAddItem() {
         Array.from(list.lastChild.lastChild.children).forEach(input => {input.disabled = true;});
         addEventListenersItem(item);
 
-        removeButtons = document.querySelectorAll('.remove');
+        removeButtons = document.querySelectorAll('.item-remove-button');
         
         name.focus();
     }
@@ -324,7 +322,7 @@ function confirmAddItem() {
 
 function createListItem(name, price, order)
 {
-    let listItem = `        <button aria-label="Remove ` + name + ` Menu Item" class="menu-item-control remove hidden" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
+    let listItem = `        <button aria-label="Remove ` + name + ` Menu Item" class="menu-item-control x-button item-remove-button hidden" data-order="` + (Number(order) + .5) + `" tabindex="0" disabled></button>
         <h2 data-price="` + price + `">` + name + `</h2>
         <div class="quantity">
             <button aria-label="Decrement ` + name + `" class="decrement" tabindex="-1"></button>
@@ -336,13 +334,13 @@ function createListItem(name, price, order)
 
 function addEventListenersItem(item)
 {
-    let removeButton = item.querySelector('.remove');
+    let removeButton = item.querySelector('.item-remove-button');
     let incrementButton = item.querySelector('.increment');
     let decrementButton = item.querySelector('.decrement');
     let totalTextArea = item.querySelector('input');
 
     // Add event listener for each button
-    removeButton.addEventListener('click', remove);
+    removeButton.addEventListener('click', removeItem);
     incrementButton.addEventListener('click', incrementCounter);
     decrementButton.addEventListener('click', decrementCounter);
     totalTextArea.addEventListener('input', inputChange);
@@ -522,7 +520,7 @@ document.addEventListener('keydown', press => {
         }
     }
 
-    if (finishingOrder == "true")
+    if (finishingOrder == "true") // Order Total Shown, Menu Hidden
     {
         if (currentElement.parentElement.matches('.footer'))
         {
@@ -561,7 +559,7 @@ document.addEventListener('keydown', press => {
             }
         }
     }
-    else if(currentlyEditing != "true")
+    else if(currentlyEditing != "true") // Creating Order, setting item quantities
     {
         if (currentElement.matches('li'))
         {
@@ -579,18 +577,22 @@ document.addEventListener('keydown', press => {
                     case W:
                         if (position != 1)
                             document.querySelector('[data-order="' + (Number(position) - 1) + '"]').focus();
+                        press.preventDefault();
                         break;
                     case DOWN:
                     case S:
                         document.querySelector('[data-order="' + (Number(position) + 1) + '"]').focus();
+                        press.preventDefault();
                         break;
                     case LEFT:
                     case A:
                         decrementCounter(currentElement.querySelector('.decrement'));
+                        press.preventDefault();
                         break;
                     case RIGHT:
                     case D:
                         incrementCounter(currentElement.querySelector('.increment'));
+                        press.preventDefault();
                         break;
                     case ENTER:
                         document.querySelector('.complete').click();
@@ -611,27 +613,33 @@ document.addEventListener('keydown', press => {
                 case UP:
                 case W:
                     document.querySelector('[data-order="' + numOfItems + '"]').focus();
+                    press.preventDefault();
                     break;
                 case LEFT:
                 case A:
                     if (position != Number(numOfItems) + 1)
                         document.querySelector('[data-order="' + (Number(position) - 1) + '"]').focus();
+                    press.preventDefault();
                     break;
                 case RIGHT:
                 case D:
                     if (position != Number(numOfItems) + 2)
                         document.querySelector('[data-order="' + (Number(position) + 1) + '"]').focus();
+                    press.preventDefault();
                     break;
             }
         }
         else {
-            if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D)
+            if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D) {
                 document.querySelector('[data-order="1"]').focus();
+                press.preventDefault();
+            }
             else if (keyPressed == ENTER)
                 document.querySelector('.complete').click();
         }
     }
-    else if (addingItem == "true") {
+    else if (addingItem == "true") // Adding new menu item
+    {
         if (keyPressed == ENTER) {
             if (currentElement.matches('#item'))
                 document.querySelector('#price').focus();
@@ -641,8 +649,9 @@ document.addEventListener('keydown', press => {
         else if (keyPressed == EXIT)
             document.querySelector('#cancel-add-item').click();
     }
-    else {
-        if (currentElement.matches('.remove'))
+    else if (currentlyEditing == "true") // Editing items, remove buttons and add item visible
+    { 
+        if (currentElement.matches('.item-remove-button'))
         {
             const position = currentElement.dataset.order;
 
@@ -653,6 +662,7 @@ document.addEventListener('keydown', press => {
                         document.querySelector('[data-order="' + (Number(position) - 1) + '"]').focus();
                     else
                         document.querySelector('.finished').focus();
+                    press.preventDefault();
                     break;
                 case DOWN:
                 case S:
@@ -660,11 +670,15 @@ document.addEventListener('keydown', press => {
                         document.querySelector('[data-order="' + (Number(position) + 1) + '"]').focus();
                     else
                         document.querySelector('.edit').focus();
+                    press.preventDefault();
+                    break;
+                case RIGHT:
+                case D:
+                    document.querySelector('[data-order="' + (Number(position) + .5) + '"]').focus();
+                    press.preventDefault();
                     break;
                 case LEFT:
-                case A:
-                    document.querySelector('[data-order="' + (Number(position) + .5) + '"]').focus();
-                    break;
+                    press.preventDefault();
                 case EXIT:
                     finished();
                     break;
@@ -684,6 +698,7 @@ document.addEventListener('keydown', press => {
                     }
                     else
                         document.querySelector('[data-order="' + (Number(position) - .5) + '"]').focus();
+                    press.preventDefault();
                     break;
                 case DOWN:
                 case S:
@@ -694,9 +709,10 @@ document.addEventListener('keydown', press => {
                     }
                     else
                         document.querySelector('.edit').focus();
+                    press.preventDefault();
                     break;
-                case RIGHT:
-                case D:
+                case LEFT:
+                case A:
                     document.querySelector('[data-order="' + (Number(position) - .5) + '"]').focus();
                     break;
                 case EXIT:
@@ -711,6 +727,7 @@ document.addEventListener('keydown', press => {
                 case DOWN:
                 case S:
                     document.querySelector('[data-order="0.5"]').focus();
+                    press.preventDefault();
                     break;
                 case LEFT:
                 case A:
@@ -729,14 +746,18 @@ document.addEventListener('keydown', press => {
         }
         else if (currentElement.matches('.edit'))
         {
-            if (keyPressed == UP)
+            if (keyPressed == UP) {
                 document.querySelector('[data-order="' + (Number(numOfItems) - .5) + '"]').focus();
+                press.preventDefault();
+            }
             else if (keyPressed == EXIT)
                 finished();
         }
         else {
-            if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D)
+            if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D) {
                 document.querySelector('[data-order="0.5"]').focus();
+                press.preventDefault();
+            }
             else if (keyPressed == EXIT)
                 finished();
         }
