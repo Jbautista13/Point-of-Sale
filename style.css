@@ -618,8 +618,8 @@ button {
 .complete,
 .decrement,
 .increment {
-  -webkit-transition: opacity 125ms ease-out, opacity 125ms ease-out;
-  transition: opacity 125ms ease-out, opacity 125ms ease-out;
+  -webkit-transition: opacity 125ms ease-out;
+  transition: opacity 125ms ease-out;
 }
 
 .fadeout {
