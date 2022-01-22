@@ -10,6 +10,32 @@
   <link rel="shortcut icon" href="./images/icon_192.png" type="image/png">
   <link rel="apple-touch-icon" href="./images/apple-touch-icon.png">
   <link rel="stylesheet" href="./style.css">
+  <script>
+    var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system'};
+    var {numOfItems, names, prices, theme} = data;
+    theme = theme || 'system';
+    document.querySelector(':root').dataset.theme = theme;
+    switch(theme) {
+      case 'light':
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
+          break;
+      case 'dark':
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
+          break;
+      case 'system':
+          if (!window.matchMedia)
+              document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
+          else
+          {
+              if(window.matchMedia('(prefers-color-scheme: dark').matches)
+                  document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
+              else
+                  document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
+          }
+          break;
+  
+    }
+  </script>
   <script type="module" src="./main.js"></script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,7 +52,9 @@
     </div>
     <div class="footer_modal">
       <button id="cancel-menu-item" class="cancel">Cancel</button>
-      <button id="confirm-clear-menu" class="confirm">Clear Menu</button></div>
+      <button id="confirm-clear-menu" class="filled-button confirm">Clear Menu</button>
+    </div>
+    <button aria-label="Exit Clear Menu Items Selection" id="exit-modal" class="modal-exit-button x-button show"></button>
   </div>
   <div data-adding="false" class="modal addItem hidden">
     <div class="modal-title">
@@ -40,8 +68,9 @@
     </div>
     <div class="footer_modal">
       <button id="cancel-add-item" class="cancel">Cancel</button>
-      <button id="confirm-add-item" class="confirm">Add Item</button>
+      <button id="confirm-add-item" class="filled-button confirm">Add Item</button>
     </div>
+    <button aria-label="Exit Add Menu Item Input" id="exit-modal" class="modal-exit-button x-button show"></button>
   </div>
   <div class="theme-picker hidden">
     <button aria-label="Change theme to Light" data-theme-name="light" class="theme-button" id="light-theme">
@@ -85,10 +114,10 @@
         <input aria-label="Price of Order" type="text" value="$0.00" data-total="0" id="total" readonly tabindex="-1">
       </div>
       <div class="footer">
-        <button aria-label="Edit menu and theme" data-in-edit="false" data-order="1" class="edit" tabindex="0">
+        <button aria-label="Edit menu and theme" data-in-edit="false" data-order="1" class="filled-button edit" tabindex="0">
           <h1>Edit</h1>            
         </button>
-        <button aria-label="Complete order" data-order="2" class="complete" tabindex="0">
+        <button aria-label="Complete order" data-order="2" class="filled-button complete" tabindex="0">
           <h1>Complete</h1>            
         </button>
       </div>
