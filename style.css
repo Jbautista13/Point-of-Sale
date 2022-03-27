@@ -518,6 +518,11 @@ ul {
   transition: opacity 125ms ease-out;
 }
 
+.menu-item-control svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .menu-item-control:hover,
 .menu-item-control:focus-visible,
 .modal-exit-button:hover,

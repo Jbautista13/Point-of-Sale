@@ -134,7 +134,7 @@ window.onload = function() {
             disableMenuItems();
             finishButton.disabled = true;
             document.body.dataset.inEdit = true;
-            document.addEventListener('dbl  click', closeMenus);
+            document.addEventListener('dblclick', closeMenus);
         }
     });
 
