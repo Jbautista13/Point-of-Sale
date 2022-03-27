@@ -23,7 +23,9 @@ var sortable = Sortable.create(el, {
         reOrderStorage(evt.oldIndex, evt.newIndex);
     },
     disabled: true,
-    filter: '.menu-item-control'
+    filter: '.menu-item-control, .menu-item-control svg',
+    preventOnFilter: false,
+    animation: 250,
 });
 
 var removeButtons;
@@ -114,6 +116,7 @@ window.onload = function() {
             enableMenuItems();
             finishButton.disabled = false;
             document.body.dataset.inEdit = false;
+            document.removeEventListener('dblclick', closeMenus);
         }
         else { // User wants to edit menu
             showElement(controls);
@@ -131,7 +134,7 @@ window.onload = function() {
             disableMenuItems();
             finishButton.disabled = true;
             document.body.dataset.inEdit = true;
-            document.addEventListener('click', closeMenus);
+            document.addEventListener('dbl  click', closeMenus);
         }
     });
 
