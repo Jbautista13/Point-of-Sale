@@ -71,6 +71,10 @@ body {
   scroll-behavior: smooth;
 }
 
+* {
+  touch-action: manipulation;
+}
+
 body {
   display: grid;
   place-items: center;
