@@ -127,6 +127,7 @@ function finishOrder(event) {
         clearChangeDue();
         showElement(document.querySelector('.change-container'))
         document.querySelector('input#cash').focus()
+        document.querySelector('input#cash').scrollIntoView();
         backButton.firstElementChild.innerText = "Back";
         completeButton.firstElementChild.innerText = "Finish";
     }
