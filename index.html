@@ -48,7 +48,7 @@
   <meta name="description" content="Point of Sale App, Add your own Menu and Pricing.">
   <script type="module" crossorigin src="assets/index.cb4bf577.js"></script>
   <link rel="modulepreload" href="assets/vendor.c27de078.js">
-  <link rel="stylesheet" href="assets/index.97661182.css">
+  <link rel="stylesheet" href="assets/index.87ec7593.css">
 </head>
 <body>
   <div class="alert-container">
@@ -144,7 +144,7 @@
       <div class="change-container hidden" style="flex-direction: column;">
         <div class="total-container">
           <h1 style="margin-block: .25em;">Cash</h1>
-          <input aria-label="Cash Given Input" type="text" value="$0.00" id="cash" tabindex="0">
+          <input aria-label="Cash Given Input" type='text' pattern='[0–9]*' inputmode='numeric' value="$0.00" id="cash" tabindex="0">
         </div>
         <div class="total-container" style="margin-top: .5rem;">
           <h1 style="margin-block: .25em;">Change Due</h1>
@@ -153,7 +153,7 @@
       </div>
       <div class="footer">
         <button aria-label="Edit menu and theme" data-in-edit="false" data-order="1" class="filled-button edit" tabindex="0">
-          <h1>Edit</h1>            
+          <h1>Edit</h1>
         </button>
         <button aria-label="Complete order" data-order="2" class="filled-button complete" tabindex="0">
           <h1>Complete</h1>            
