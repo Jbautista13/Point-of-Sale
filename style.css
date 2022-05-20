@@ -93,6 +93,7 @@ body.no-scroll {
 h1,
 h2,
 input#total,
+input#change,
 :disabled {
   -webkit-user-select: none;
   user-select: none;
@@ -233,6 +234,7 @@ li {
 
 li,
 .total,
+.change-container,
 .complete,
 .edit,
 .add,
@@ -256,19 +258,31 @@ li,
   scroll-margin-bottom: max(2rem, env(safe-area-inset-bottom));
 }
 
-.total {
-  margin-top: 0;
+.change-container:not(.show) {
+opacity: 0 !important;
+margin-bottom: -3.6165625rem !important;
+margin-top: -3.02125rem !important;
 }
 
 .total-container {
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
 }
 .total-container input {
   line-height: .75rem;
-  border: 1px solid var(--font-color);
+  border-bottom: 1px solid #888888;
   font-size: 1.5rem !important;
+  border-radius: 0 !important;
+  height: 1.75rem;
+  width: 10ch;
+  text-align: right;
+}
+
+.total-container input:focus {
+  box-shadow: none;
+  border-bottom: 1px solid black;
 }
 .total-container h1 {
   font-size: 1.5rem;
@@ -283,16 +297,16 @@ ul li:first-child {
   scroll-margin-top: max(2rem, calc(env(safe-area-inset-top) + 1rem));
 }
 
+ul li:not(ul li:first-child) { scroll-margin-top: .5rem; }
+
 .theme-picker.show ~ .container ul li * {
   scroll-margin-top: calc(8rem + 10px)
 }
 
-li, .total {
-  justify-content: space-between;
-}
-
 li,
-.total {
+.total,
+.change-container {
+  justify-content: space-between;
   background: var(--background-color);
   box-shadow: 0 .2em .4em var(--reg-box-shadow), 0 0 .8em var(--reg-box-shadow);
 }
@@ -621,10 +635,15 @@ ul {
   transform: rotate(90deg);
 }
 
-li.remove {
+.change-container.show {
+  transition: opacity 150ms ease-out 375ms, margin-top 375ms ease-out 125ms, margin-bottom 375ms ease-out 125ms;
+}
+
+li.remove, .change-container:not(.show) {
   transition: opacity 150ms ease-out, margin-top 375ms ease-out, margin-bottom 375ms ease-out;
   opacity: 1;
 }
+
 
 li.remove {
   --margin: -2.6353125rem;
@@ -732,12 +751,13 @@ textarea {
   font-weight: 700;
 }
 
-input:not(#total, .item-info-input) {
+input:not(#total, #cash, #change, .item-info-input) {
   text-align: center;
   width: 4ch;
 }
 
-input#total {
+input#total,
+input#change {
   width: 10ch;
   text-align: right;
   font-size: 1.75rem

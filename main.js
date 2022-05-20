@@ -21,8 +21,10 @@ window.onload = function() {
     let add = document.querySelector('.add');
     let list = document.querySelector('.order');
     let finishButton = document.querySelector('.complete');
+    let cash = document.querySelector('#cash');
     themeButtons = document.querySelectorAll('.theme-button');
 
+    cash.addEventListener('keydown', cashInput);
     done.addEventListener('click', finished);
     add.addEventListener('click', addHandler);
     finishButton.addEventListener('click', finishOrder);
@@ -112,6 +114,7 @@ function finishOrder(event) {
     else if (finishingOrder == "true") {
         clearOrder();
         showElement(document.querySelector('.order'));
+        hideElement(document.querySelector('.change-container'), 'margin-top');
         items.forEach( item => item.tabIndex = "0");
         document.body.dataset.finishingOrder = "false";
         backButton.firstElementChild.innerText = "Edit";
@@ -121,6 +124,9 @@ function finishOrder(event) {
         items.forEach( item => item.tabIndex = "-1");
         document.body.dataset.finishingOrder = "true";
         hideElement(document.querySelector('.order'), 'margin-top');
+        clearChangeDue();
+        showElement(document.querySelector('.change-container'))
+        document.querySelector('input#cash').focus()
         backButton.firstElementChild.innerText = "Back";
         completeButton.firstElementChild.innerText = "Finish";
     }
@@ -130,6 +136,7 @@ function continueOrder(backButton) {
     let items = document.querySelectorAll('li');
     let completeButton = backButton.nextElementSibling;
     showElement(document.querySelector('.order'));
+    hideElement(document.querySelector('.change-container'), 'margin-top');
     items.forEach( item => item.tabIndex = "0");
     document.body.dataset.finishingOrder = "false";
     backButton.firstElementChild.innerText = "Edit";
@@ -259,7 +266,7 @@ function editItem(event) {
 
 }
 
-function addHandler() {
+function addHandler(event) {
     event.stopPropagation();
     let form = document.querySelector('.modal-add-item');
 
@@ -300,6 +307,31 @@ function changeTheme(event)
     document.querySelector(':root').dataset.theme = theme;
     localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
     console.log(event.currentTarget); 
+}
+
+function cashInput(event)
+{
+    let cashInput = event.target
+    let changeInput = cashInput.parentElement.nextElementSibling.children[1]
+
+    console.log(event.code)
+    if (event.code == "Escape" || event.code == "Enter") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!isFinite(event.key) && event.code != "Backspace" && event.code != "Period") return; // Invalid input
+
+    if (isFinite(event.key))
+        cashInput.value = formatter.format(Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 10) + (event.key / 100));
+    else if (event.code == "Backspace") {
+        cashInput.value = formatter.format(Math.floor(Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 10))  / 100);
+    }
+    else {
+        cashInput.value = formatter.format((Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 100)));
+    }
+
+    changeInput.value = formatter.format(Number(cashInput.value.replace(/[^0-9.-]+/g, '')) - document.querySelector('#total').dataset.total)
 }
 
 
@@ -346,6 +378,11 @@ function closeMenus(event) {
         if (!event.target.closest('.container') && !event.target.closest('.theme-picker') && !event.target.closest('.modal'))
             finished();
     }
+}
+
+function clearChangeDue() {
+    document.querySelector('#change').value = "$0.00"
+    document.querySelector('#cash').value = "$0.00"
 }
 
 function confirmEditItem(event)
@@ -709,6 +746,12 @@ function reOrderStorage(oldIndex, newIndex)
     reOrder();
 }
 
+function outsideViewport(element) {
+    var pos = element.getBoundingClientRect();
+    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+    return !(pos.bottom > 0 && pos.bottom <= viewHeight && pos.top > 0 &&  pos.top <= viewHeight);
+}
+
 function updateTheme()
 {
     switch(theme) {
@@ -783,14 +826,18 @@ function hideErrorDialog() {
 
 function keyboardMoveUp(currentPosition, decrement)
 {
-    document.querySelector('[data-order="' + (Number(currentPosition) - decrement) + '"]').focus();
-    document.querySelector('[data-order="' + (Number(currentPosition) - decrement) + '"]').scrollIntoView();
+    let item = document.querySelector('[data-order="' + (Number(currentPosition) - decrement) + '"]');
+    item.focus();
+    if (outsideViewport(item))
+        item.scrollIntoView();
 }
 
 function keyboardMoveDown(currentPosition, increment)
 {
-    document.querySelector('[data-order="' + (Number(currentPosition) + increment) + '"]').focus();
-    document.querySelector('[data-order="' + (Number(currentPosition) + increment) + '"]').scrollIntoView();
+    let item = document.querySelector('[data-order="' + (Number(currentPosition) + increment) + '"]');
+    item.focus();
+    if (outsideViewport(item))
+        item.scrollIntoView();
 }
 
 document.addEventListener('keydown', press => {
@@ -839,12 +886,10 @@ document.addEventListener('keydown', press => {
         }
     }
 
-    if (currentElement.matches('input') && keyPressed != EXIT)
+    if (currentElement instanceof HTMLInputElement && keyPressed != EXIT)
     {
-        console.log('hello')
         // Pass through only to known modal sources, avoid messing with extensions/scripts
-        if (!currentElement.parentElement.matches('.modal-content'))
-            return;
+        if (!currentElement.parentElement.matches('.modal-content') &&  !currentElement.matches('input#cash')) return;
     }
 
     if (screencastStates.showKeys)
@@ -956,6 +1001,7 @@ document.addEventListener('keydown', press => {
                 case D:
                     document.querySelector('.edit').focus();
                     break;
+                case EXIT:
                 case BACK:
                     document.querySelector('.edit').click();
                     break;
@@ -1174,12 +1220,12 @@ document.addEventListener('keydown', press => {
                     break;
                 case LEFT:
                 case A:
-                    if (position != -0.5)
+                    if (position != -0.75)
                         keyboardMoveUp(position, SPACEBETWEENITEMCONTROLS)
                     break;
                 case RIGHT:
                 case D:
-                    if (position != 0)
+                    if (position != -0.25)
                         keyboardMoveDown(position, SPACEBETWEENITEMCONTROLS)
                     break;
                 case EXIT:
