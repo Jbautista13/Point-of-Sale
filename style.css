@@ -272,7 +272,7 @@ margin-top: -3.02125rem !important;
 }
 .total-container input {
   line-height: .75rem;
-  border-bottom: 1px solid #888888;
+  border-bottom: 1px solid rgb(127 127 127);
   font-size: 1.5rem !important;
   border-radius: 0 !important;
   height: 1.75rem;
@@ -282,7 +282,7 @@ margin-top: -3.02125rem !important;
 
 .total-container input:focus {
   box-shadow: none;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--font-color);
 }
 .total-container h1 {
   font-size: 1.5rem;
