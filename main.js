@@ -1,62 +1,18 @@
 import Sortable from 'sortablejs';
 
-if ((window.navigator.standalone) || (window.matchMedia('(display-mode: standalone)').matches))
-        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no')
-
-var metaKeys = {"meta": "Meta", "alt": "Alt", "control": "Ctrl", "shift": "Shift"}
-
-if (/(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent))
-{
-    metaKeys["meta"] = "⌘"
-    metaKeys["alt"] = "⌥"
-    metaKeys["control"] = "⌃"
-    metaKeys["shift"] = "⇧"
-}
-
-var el = document.querySelector('ul');
-var sortable = Sortable.create(el, {
-    onStart: function (evt) {
-		document.querySelector('.price_footer').classList.add('dragging');
-	},
-    onEnd: function(evt) {
-        document.querySelector('.price_footer').classList.remove('dragging');
-        reOrderStorage(evt.oldIndex, evt.newIndex);
-    },
-    disabled: true,
-    filter: '.menu-item-control, .menu-item-control svg',
-    preventOnFilter: false,
-    animation: 250,
-});
-
 var removeButtons;
 var editButtons;
 var themeButtons;
 var editButton;
-var showKeypresses = false;
-var keyPressedCurrently = false;
-var hideKeyPressTimer;
+var screencastStates = { showKeys: false, keyPressedCurrently: false }
+var dialogTimers = { hideKeyPressTimer: null, errorTimer: null };
 
 var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system'};
 var {numOfItems, names, prices, theme} = data;
 
 theme = theme || 'system';
 
-
-document.querySelector(':root').style.setProperty('--num-of-items', Number(numOfItems));
-
-function incrementCounter(event) {
-    let button = event.target || event;
-    let item = button.previousElementSibling;
-    item.stepUp();
-    item.dispatchEvent(new Event('input'));
-}
-
-function decrementCounter(event) {
-    let button = event.target || event;
-    let item = button.nextElementSibling;
-    item.stepDown();
-    item.dispatchEvent(new Event('input'));
-}
+updateNumberOfItemsStyle(numOfItems)
 
 window.onload = function() {
     
@@ -65,8 +21,10 @@ window.onload = function() {
     let add = document.querySelector('.add');
     let list = document.querySelector('.order');
     let finishButton = document.querySelector('.complete');
+    let cash = document.querySelector('#cash');
     themeButtons = document.querySelectorAll('.theme-button');
 
+    cash.addEventListener('keydown', cashInput);
     done.addEventListener('click', finished);
     add.addEventListener('click', addHandler);
     finishButton.addEventListener('click', finishOrder);
@@ -156,6 +114,7 @@ function finishOrder(event) {
     else if (finishingOrder == "true") {
         clearOrder();
         showElement(document.querySelector('.order'));
+        hideElement(document.querySelector('.change-container'), 'margin-top');
         items.forEach( item => item.tabIndex = "0");
         document.body.dataset.finishingOrder = "false";
         backButton.firstElementChild.innerText = "Edit";
@@ -165,6 +124,9 @@ function finishOrder(event) {
         items.forEach( item => item.tabIndex = "-1");
         document.body.dataset.finishingOrder = "true";
         hideElement(document.querySelector('.order'), 'margin-top');
+        clearChangeDue();
+        showElement(document.querySelector('.change-container'))
+        document.querySelector('input#cash').focus()
         backButton.firstElementChild.innerText = "Back";
         completeButton.firstElementChild.innerText = "Finish";
     }
@@ -172,10 +134,9 @@ function finishOrder(event) {
 
 function continueOrder(backButton) {
     let items = document.querySelectorAll('li');
-    let total = document.querySelector('.total');
-    let container = document.querySelector('.container');
     let completeButton = backButton.nextElementSibling;
     showElement(document.querySelector('.order'));
+    hideElement(document.querySelector('.change-container'), 'margin-top');
     items.forEach( item => item.tabIndex = "0");
     document.body.dataset.finishingOrder = "false";
     backButton.firstElementChild.innerText = "Edit";
@@ -232,18 +193,18 @@ function removeItem(event) {
     totalDisp.value = formatter.format(orderTotal);
     totalDisp.dataset.total = orderTotal;
     numOfItems = Number(numOfItems) - 1;
-    document.documentElement.style.setProperty('--num-of-items', Number(numOfItems));
+    updateNumberOfItemsStyle(numOfItems)
 
     listItem.classList.add('remove')
     listItem.addEventListener('transitionend', function hide(event) {
         if ((event.propertyName == 'margin-top'))
         {
             listItem.outerHTML = "";
+            reOrder();
         }
     });
     
     localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
-    reOrder();
     removeButtons = document.querySelectorAll('.item-remove-button');
     editButtons = document.querySelectorAll('.item-edit-button');
 }
@@ -305,7 +266,7 @@ function editItem(event) {
 
 }
 
-function addHandler() {
+function addHandler(event) {
     event.stopPropagation();
     let form = document.querySelector('.modal-add-item');
 
@@ -348,6 +309,31 @@ function changeTheme(event)
     console.log(event.currentTarget); 
 }
 
+function cashInput(event)
+{
+    let cashInput = event.target
+    let changeInput = cashInput.parentElement.nextElementSibling.children[1]
+
+    console.log(event.code)
+    if (event.code == "Escape" || event.code == "Enter") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!isFinite(event.key) && event.code != "Backspace" && event.code != "Period") return; // Invalid input
+
+    if (isFinite(event.key))
+        cashInput.value = formatter.format(Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 10) + (event.key / 100));
+    else if (event.code == "Backspace") {
+        cashInput.value = formatter.format(Math.floor(Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 10))  / 100);
+    }
+    else {
+        cashInput.value = formatter.format((Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 100)));
+    }
+
+    changeInput.value = formatter.format(Number(cashInput.value.replace(/[^0-9.-]+/g, '')) - document.querySelector('#total').dataset.total)
+}
+
 
 
 /* ---------------- */
@@ -357,6 +343,20 @@ function changeTheme(event)
 /* ---------------- */
 
 
+
+function incrementCounter(event) {
+    let button = event.target || event;
+    let item = button.previousElementSibling;
+    item.stepUp();
+    item.dispatchEvent(new Event('input'));
+}
+
+function decrementCounter(event) {
+    let button = event.target || event;
+    let item = button.nextElementSibling;
+    item.stepDown();
+    item.dispatchEvent(new Event('input'));
+}
 
 function cancelModal() {
     let modal = document.body.dataset.currentModal
@@ -370,19 +370,24 @@ function cancelModal() {
 function closeMenus(event) {
     if (document.body.dataset.currentModal)
     {
-        cancelModal();
+        if (!event.target.closest('.modal'))
+            cancelModal();
     }
     else
     {
         if (!event.target.closest('.container') && !event.target.closest('.theme-picker') && !event.target.closest('.modal'))
-        {
             finished();
-        }
     }
+}
+
+function clearChangeDue() {
+    document.querySelector('#change').value = "$0.00"
+    document.querySelector('#cash').value = "$0.00"
 }
 
 function confirmEditItem(event)
 {
+    let form = document.querySelector('.modal-edit-item')
     let cancel = document.querySelector('#cancel-edit-item');
     let name = document.querySelector('#edited-item-name');
     let price = document.querySelector('#edited-item-price');
@@ -394,64 +399,186 @@ function confirmEditItem(event)
 
         let itemPos = names.indexOf(event.currentTarget.dataset.previousItemName);
         let menuItem = document.querySelector('[data-order="' + Number(itemPos + 1) + '"')
-        console.log(menuItem)
 
         // Format Price
         let fPrice = formatter.formatToParts(price.value);
+
+        if (fPrice[1].type === "nan")
+        {
+            document.activeElement.blur();
+            let errorDialog = document.querySelector('#alert-error')
+            form.classList.add('modal-shake');
+            confirm.disabled = true;
+            errorDialog.textContent = "Enter a valid price for " + name.value
+            errorDialog.classList.add('show')
+            if (dialogTimers.errorTimer)
+                clearTimeout(dialogTimers.errorTimer);
+            dialogTimers.errorTimer = setTimeout(hideErrorDialog, 2500)
+            form.addEventListener('animationend', function removeAnimation() {
+                form.removeEventListener('animationend', removeAnimation);
+                form.classList.remove('modal-shake');
+                confirm.disabled = false;
+                price.focus();
+            });
+            return;
+        }
+
         fPrice[1].value = fPrice[1].value || '';
 
-        let newPrice = fPrice[1].value + fPrice[2].value + fPrice[3].value;
+        let itemPrice = fPrice[1].value + fPrice[2].value + fPrice[3].value;
+
+        if (document.getElementById(name.value.toLowerCase() + '_' + itemPrice))
+        {
+            document.activeElement.blur();
+            let errorDialog = document.querySelector('#alert-error')
+            form.classList.add('modal-shake');
+            confirm.disabled = true;
+            errorDialog.textContent = "Item already exists"
+            errorDialog.classList.add('show')
+            if (dialogTimers.errorTimer)
+                clearTimeout(dialogTimers.errorTimer);
+            dialogTimers.errorTimer = setTimeout(hideErrorDialog, 2500)
+            form.addEventListener('animationend', function removeAnimation() {
+                form.removeEventListener('animationend', removeAnimation);
+                form.classList.remove('modal-shake');
+                confirm.disabled = false;
+                name.focus();
+            });
+            return;
+        }
 
         // Edit old Item Element
         menuItem.children[0].ariaLabel = "Remove " + name.value + " Menu Item"
         menuItem.children[1].ariaLabel = "Edit " + name.value + " Menu Item"
-        menuItem.children[2].dataset.price = newPrice
+        menuItem.children[2].dataset.price = itemPrice
         menuItem.children[2].innerText = name.value
         menuItem.children[3].children[0].ariaLabel = "Decrement " + name.value
         menuItem.children[3].children[1].ariaLabel = "Number of " + name.value
         menuItem.children[3].children[1].id = name.value.toLowerCase()
-        menuItem.children[3].children[1].dataset.price = newPrice
+        menuItem.children[3].children[1].dataset.price = itemPrice
         menuItem.children[3].children[2].ariaLabel = "Increment " + name.value
 
         names[itemPos] = name.value;
-        prices[itemPos] = newPrice;
+        prices[itemPos] = itemPrice;
         
         localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
         
+        console.log(menuItem.children[3].children[1])
+        menuItem.children[3].children[1].dispatchEvent(new Event('input'));
         cancel.dispatchEvent(new Event('click'));
     }
 }
 
-function confirmAddItem()
+function confirmAddItem(event)
 {
     let form = document.querySelector('.modal-add-item');
     let list = document.querySelector('.order');
+    let confirm = event.currentTarget;
     let cancel = document.querySelector('#cancel-add-item');
     let name = document.querySelector('#add-item-name');
     let price = document.querySelector('#add-item-price');
 
     if (!(name.value.trim().length) && !(price.value.length))
         cancel.dispatchEvent(new Event('click'));
-    else if (!(name.value.trim().length) || !(price.value.length))
-    {}
+    else if (!(name.value.trim().length))
+    {
+        console.log(!(name.value.trim().length))
+        document.activeElement.blur()
+        let errorDialog = document.querySelector('#alert-error')
+        form.classList.add('modal-shake');
+        confirm.disabled = true;
+        errorDialog.textContent = "Please enter an item name"
+        errorDialog.classList.add('show')
+        if (dialogTimers.errorTimer)
+            clearTimeout(dialogTimers.errorTimer);
+        dialogTimers.errorTimer = setTimeout(hideErrorDialog, 2500)
+        form.addEventListener('animationend', function removeAnimation() {
+            form.removeEventListener('animationend', removeAnimation);
+            form.classList.remove('modal-shake');
+            confirm.disabled = false;
+            name.focus();
+        });
+        return;
+    }
+    else if (!(price.value.length))
+    {
+        document.activeElement.blur()
+        let errorDialog = document.querySelector('#alert-error')
+        form.classList.add('modal-shake');
+        confirm.disabled = true;
+        errorDialog.textContent = "Please enter a price for " + name.value
+        errorDialog.classList.add('show')
+        if (dialogTimers.errorTimer)
+            clearTimeout(dialogTimers.errorTimer);
+        dialogTimers.errorTimer = setTimeout(hideErrorDialog, 2500)
+        form.addEventListener('animationend', function removeAnimation() {
+            form.removeEventListener('animationend', removeAnimation);
+            form.classList.remove('modal-shake');
+            confirm.disabled = false;
+            price.focus();
+        });
+        return;
+    }
     else // Create and Add New Item
     {
         // Format Price
         let fPrice = formatter.formatToParts(price.value);
+
+        if (fPrice[1].type === "nan")
+        {
+            document.activeElement.blur();
+            let errorDialog = document.querySelector('#alert-error')
+            form.classList.add('modal-shake');
+            confirm.disabled = true;
+            errorDialog.textContent = "Enter a valid price for " + name.value
+            errorDialog.classList.add('show')
+            if (dialogTimers.errorTimer)
+                clearTimeout(dialogTimers.errorTimer);
+            dialogTimers.errorTimer = setTimeout(hideErrorDialog, 2500)
+            form.addEventListener('animationend', function removeAnimation() {
+                form.removeEventListener('animationend', removeAnimation);
+                form.classList.remove('modal-shake');
+                confirm.disabled = false;
+                price.focus();
+            });
+            return;
+        }
+
         fPrice[1].value = fPrice[1].value || '';
+        let itemPrice = fPrice[1].value + fPrice[2].value + fPrice[3].value;
+
+        if (document.getElementById(name.value.toLowerCase() + '_' + itemPrice))
+        {
+            document.activeElement.blur()
+            let errorDialog = document.querySelector('#alert-error')
+            form.classList.add('modal-shake');
+            confirm.disabled = true;
+            errorDialog.textContent = "Item already exists"
+            errorDialog.classList.add('show')
+            if (dialogTimers.errorTimer)
+                clearTimeout(dialogTimers.errorTimer);
+            dialogTimers.errorTimer = setTimeout(hideErrorDialog, 2500)
+            form.addEventListener('animationend', function removeAnimation() {
+                form.removeEventListener('animationend', removeAnimation);
+                form.classList.remove('modal-shake');
+                confirm.disabled = false;
+                name.focus();
+            });
+            return;
+        }
 
         // Create Item Element
         let item = document.createElement('li');
         item.tabIndex = "-1";
         item.dataset.order = Number(numOfItems) + 1;
-        item.innerHTML = createListItem(name.value, fPrice[1].value + fPrice[2].value + fPrice[3].value, numOfItems);
+        item.innerHTML = createListItem(name.value, itemPrice, numOfItems);
         list.appendChild(item);
 
         names[numOfItems] = name.value;
-        prices[numOfItems] = fPrice[1].value + fPrice[2].value + fPrice[3].value;
+        prices[numOfItems] = itemPrice;
 
         numOfItems = Number(numOfItems) + 1;
-        document.documentElement.style.setProperty('--num-of-items', Number(numOfItems));
+        updateNumberOfItemsStyle(numOfItems);
         localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
 
         name.value = "";
@@ -479,7 +606,7 @@ function createListItem(name, price, order)
         <h2 data-price="` + price + `">` + name + `</h2>
         <div class="quantity">
             <button aria-label="Decrement ` + name + `" class="decrement" tabindex="-1"></button>
-            <input aria-label="Number of ` + name + `" type="number" pattern="[0-9]*" inputmode="numeric" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `" tabindex="-1">
+            <input aria-label="Number of ` + name + `" type="number" pattern="[0-9]*" inputmode="numeric" data-name="` + name + `" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `_` + price + `" tabindex="-1">
             <button aria-label="Increment ` + name + `" class="increment" tabindex="-1"></button>
         </div>`
     return listItem;
@@ -619,6 +746,12 @@ function reOrderStorage(oldIndex, newIndex)
     reOrder();
 }
 
+function outsideViewport(element) {
+    var pos = element.getBoundingClientRect();
+    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+    return !(pos.bottom > 0 && pos.bottom <= viewHeight && pos.top > 0 &&  pos.top <= viewHeight);
+}
+
 function updateTheme()
 {
     switch(theme) {
@@ -645,12 +778,43 @@ function updateTheme()
     }
 }
 
+function updateNumberOfItemsStyle(itemCount)
+{
+    document.querySelector(':root').style.setProperty('--num-of-items', Number(itemCount));
+}
+
 function finished() { document.querySelector('.edit').dispatchEvent(new Event('click')); };
 
 function hideKeyPress() {
-    keyPressedCurrently = false
-    if (keyPressedCurrently == false)
-        document.querySelector('.alert-dialog').classList.remove('show');
+    screencastStates.keyPressedCurrently = false
+    if (screencastStates.keyPressedCurrently == false) {
+        let alertDialog = document.querySelector('#alert-default');
+
+        alertDialog.classList.remove('show');
+
+        alertDialog.addEventListener('transitionend', function hide(event) {
+            if (event.propertyName === 'margin-top' && !alertDialog.matches('.show'))
+            {
+                alertDialog.textContent = '';
+                alertDialog.removeEventListener('transitionend', hide);
+            }
+        });
+        
+    }
+}
+
+function hideErrorDialog() {
+    let alertDialog = document.querySelector('#alert-error');
+
+    alertDialog.classList.remove('show');
+
+    alertDialog.addEventListener('transitionend', function hide(event) {
+        if (event.propertyName === 'opacity' && !alertDialog.matches('.show'))
+        {
+            alertDialog.textContent = '';
+            alertDialog.removeEventListener('transitionend', hide);
+        }
+    });
 }
 
 
@@ -662,12 +826,18 @@ function hideKeyPress() {
 
 function keyboardMoveUp(currentPosition, decrement)
 {
-    document.querySelector('[data-order="' + (Number(currentPosition) - decrement) + '"]').focus();
+    let item = document.querySelector('[data-order="' + (Number(currentPosition) - decrement) + '"]');
+    item.focus();
+    if (outsideViewport(item))
+        item.scrollIntoView();
 }
 
 function keyboardMoveDown(currentPosition, increment)
 {
-    document.querySelector('[data-order="' + (Number(currentPosition) + increment) + '"]').focus();
+    let item = document.querySelector('[data-order="' + (Number(currentPosition) + increment) + '"]');
+    item.focus();
+    if (outsideViewport(item))
+        item.scrollIntoView();
 }
 
 document.addEventListener('keydown', press => {
@@ -716,14 +886,13 @@ document.addEventListener('keydown', press => {
         }
     }
 
-    if (currentElement.matches('input') && keyPressed != EXIT)
+    if (currentElement instanceof HTMLInputElement && keyPressed != EXIT)
     {
         // Pass through only to known modal sources, avoid messing with extensions/scripts
-        if (!currentElement.parentElement.matches('.modal-content'))
-            return;
+        if (!currentElement.parentElement.matches('.modal-content') &&  !currentElement.matches('input#cash')) return;
     }
 
-    if (showKeypresses)
+    if (screencastStates.showKeys)
     {
         let metaKey = ""
         let displayKey = press.key
@@ -776,29 +945,33 @@ document.addEventListener('keydown', press => {
                 displayKey = metaKey
         }
 
-        document.querySelector(".alert-dialog").textContent = displayKey;
-        if (keyPressedCurrently == true)
+        document.querySelector("#alert-default").textContent = displayKey;
+        if (screencastStates.keyPressedCurrently == true)
         {
-            clearTimeout(hideKeyPressTimer);
+            clearTimeout(dialogTimers.hideKeyPressTimer);
         }
         else
         {
-            document.querySelector('.alert-dialog').classList.add('show');
-            keyPressedCurrently = true;
+            document.querySelector('#alert-default').classList.add('show');
+            screencastStates.keyPressedCurrently = true;
         }
 
-        hideKeyPressTimer = setTimeout(hideKeyPress, 2500)
+        dialogTimers.hideKeyPressTimer = setTimeout(hideKeyPress, 2500)
 
     }
 
     if (press.altKey && keyPressed == "KeyK")
     {
-        showKeypresses = !showKeypresses;
+        screencastStates.showKeys = !screencastStates.showKeys;
         return;
     }
 
     if (finishingOrder == "true") // Order Total Shown, Menu Hidden
     {
+        console.log(document.activeElement.isContentEditable)
+        if (document.activeElement.isContentEditable) {
+            console.log('hello');
+        }
         if (currentElement.parentElement.matches('.footer'))
         {
             const position = currentElement.dataset.order;
@@ -828,6 +1001,7 @@ document.addEventListener('keydown', press => {
                 case D:
                     document.querySelector('.edit').focus();
                     break;
+                case EXIT:
                 case BACK:
                     document.querySelector('.edit').click();
                     break;
@@ -854,10 +1028,12 @@ document.addEventListener('keydown', press => {
                     case W:
                         if (position != 1)
                             keyboardMoveUp(position, SPACEBETWEENMENUITEMS)
+                        press.preventDefault();
                         break;
                     case DOWN:
                     case S:
                         keyboardMoveDown(position, SPACEBETWEENMENUITEMS)
+                        press.preventDefault();
                         break;
                     case LEFT:
                     case A:
@@ -886,6 +1062,7 @@ document.addEventListener('keydown', press => {
                 case UP:
                 case W:
                     document.querySelector('[data-order="' + numOfItems + '"]').focus();
+                    press.preventDefault();
                     break;
                 case LEFT:
                 case A:
@@ -902,6 +1079,7 @@ document.addEventListener('keydown', press => {
         else {
             if (keyPressed == UP || keyPressed == DOWN || keyPressed == LEFT || keyPressed == RIGHT || keyPressed == W || keyPressed == S || keyPressed == A || keyPressed == D) {
                 document.querySelector('[data-order="1"]').focus();
+                press.preventDefault();
             }
             else if (keyPressed == ENTER)
                 document.querySelector('.complete').click();
@@ -1042,12 +1220,12 @@ document.addEventListener('keydown', press => {
                     break;
                 case LEFT:
                 case A:
-                    if (position != -0.5)
+                    if (position != -0.75)
                         keyboardMoveUp(position, SPACEBETWEENITEMCONTROLS)
                     break;
                 case RIGHT:
                 case D:
-                    if (position != 0)
+                    if (position != -0.25)
                         keyboardMoveDown(position, SPACEBETWEENITEMCONTROLS)
                     break;
                 case EXIT:
@@ -1074,3 +1252,27 @@ document.addEventListener('keydown', press => {
         }
     }
 })
+
+var metaKeys = {"meta": "Meta", "alt": "Alt", "control": "Ctrl", "shift": "Shift"}
+
+if (/(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent))
+{
+    metaKeys["meta"] = "⌘"
+    metaKeys["alt"] = "⌥"
+    metaKeys["control"] = "⌃"
+    metaKeys["shift"] = "⇧"
+}
+
+var sortable = Sortable.create(document.querySelector('ul'), {
+    onStart: function () {
+		document.querySelector('.price_footer').classList.add('dragging');
+	},
+    onEnd: function(event) {
+        document.querySelector('.price_footer').classList.remove('dragging');
+        reOrderStorage(event.oldIndex, event.newIndex);
+    },
+    disabled: true,
+    filter: '.menu-item-control, .menu-item-control svg',
+    preventOnFilter: false,
+    animation: 250,
+});
