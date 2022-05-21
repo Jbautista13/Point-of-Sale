@@ -116,6 +116,7 @@ function finishOrder(event) {
         showElement(document.querySelector('.order'));
         hideElement(document.querySelector('.change-container'), 'margin-top');
         items.forEach( item => item.tabIndex = "0");
+        items[0].focus();
         document.body.dataset.finishingOrder = "false";
         backButton.firstElementChild.innerText = "Edit";
         completeButton.firstElementChild.innerText = "Complete";
