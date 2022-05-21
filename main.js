@@ -596,19 +596,23 @@ function confirmAddItem(event)
     }
 }
 
-function createListItem(name, price, order)
+function createListItem(nameInput, priceInput, orderInput)
 {
-    let listItem = `        <button aria-label="Remove ` + name + ` Menu Item" class="menu-item-control x-button item-remove-button hidden" data-order="` + (Number(order) + .25) + `" tabindex="0" disabled></button>
-        <button aria-label="Edit ` + name + ` Menu Item" class="menu-item-control item-edit-button hidden" data-order="` + (Number(order) + .75) + `" tabindex="0" disabled>
+    const name = escapeInput(nameInput)
+    const price = escapeInput(priceInput)
+    const order = escapeInput(orderInput)
+
+    let listItem = `<button aria-label="Remove ${name} Menu Item" class="menu-item-control x-button item-remove-button hidden" data-order="${(Number(order) + .25)}" tabindex="0" disabled></button>
+        <button aria-label="Edit ${name} Menu Item" class="menu-item-control item-edit-button hidden" data-order="${(Number(order) + .75)}" tabindex="0" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
             </svg>
         </button>
-        <h2 data-price="` + price + `">` + name + `</h2>
+        <h2 data-price="${price}">${name}</h2>
         <div class="quantity">
-            <button aria-label="Decrement ` + name + `" class="decrement" tabindex="-1"></button>
-            <input aria-label="Number of ` + name + `" type="number" pattern="[0-9]*" inputmode="numeric" data-name="` + name + `" data-price="` + price + `" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="` + name.toLowerCase() + `_` + price + `" tabindex="-1">
-            <button aria-label="Increment ` + name + `" class="increment" tabindex="-1"></button>
+            <button aria-label="Decrement ${name}" class="decrement" tabindex="-1"></button>
+            <input aria-label="Number of ${name}" type="number" pattern="[0-9]*" inputmode="numeric" data-name="${name}" data-price="${price}" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="${name.toLowerCase()}_${price}" tabindex="-1">
+            <button aria-label="Increment ${name}" class="increment" tabindex="-1"></button>
         </div>`
     return listItem;
 }
@@ -817,6 +821,16 @@ function hideErrorDialog() {
         }
     });
 }
+
+function escapeInput(input)
+{
+    return String(input)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+ }
 
 
 /* -------------- */
