@@ -4,6 +4,7 @@
   --input-background: #171717;
   --add-item-text-color: #c9c9c9;
   --font-color: rgb(82.55% 84.13% 84.13%);
+  --edit-button-background: #4c4c4c;
   --hover-color: hsl(0deg 0% 60%);
   --button-hover-color: rgb(215 215 215);
   --reg-box-shadow: rgb(0 0 0 / 20%);
@@ -19,7 +20,8 @@
     --background-color: #ffffff;
     --input-background: #f3f3f3;
     --add-item-text-color: #444444;
-    --font-color: #1a1a1a;
+    --font-color: #282828;
+    --edit-button-background: var(--font-color);
     --hover-color: rgb(102 102 102);
     --button-hover-color: hsl(0deg 0% 96%);
     --reg-box-shadow: rgb(0 0 0 / 10%);
@@ -36,6 +38,7 @@
   --input-background: #171717;
   --add-item-text-color: #c9c9c9;
   --font-color: rgb(82.55% 84.13% 84.13%);
+  --edit-button-background: #4c4c4c;
   --hover-color: hsl(0deg 0% 60%);
   --button-hover-color: rgb(215 215 215);
   --reg-box-shadow: rgb(0 0 0 / 20%);
@@ -50,7 +53,8 @@
   --background-color: #ffffff;
   --input-background: #f3f3f3;
   --add-item-text-color: #444444;
-  --font-color: #1a1a1a;
+  --font-color: #282828;
+  --edit-button-background: var(--font-color);
   --hover-color: rgb(102 102 102);
   --button-hover-color: hsl(0deg 0% 96%);
   --reg-box-shadow: rgb(0 0 0 / 10%);
@@ -315,7 +319,7 @@ li,
 }
 
 :is(li, .total, .add, .complete, .edit, .finished):focus-visible {
-  box-shadow: var(--focus-box-shadow);
+  box-shadow: var(--focus-box-shadow) !important;
   outline: none;
 }
 
@@ -462,12 +466,13 @@ button.cancel:focus-visible {
 }
 
 .complete {
-  background: #006AFF;
+  background: hsl(215deg 100% 43%);
   width: 67.5%;
 }
 
 .edit {
-  background: #888;
+  background: var(--edit-button-background);
+  box-shadow: 0 .2em .4em var(--reg-box-shadow), 0 0 .8em var(--reg-box-shadow);
   width: 30%;
 }
 
