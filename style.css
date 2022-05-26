@@ -821,12 +821,13 @@ input[type="number"]::-webkit-outer-spin-button {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 2rem;
+  margin-top: max(2rem, env(safe-area-inset-top));
   width: 75vw;
   max-width: 20rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  pointer-events: none;
 }
 
 .alert-dialog {
@@ -840,7 +841,7 @@ input[type="number"]::-webkit-outer-spin-button {
   text-align: center;
   user-select: none;
   opacity: 0;
-  transition: opacity 250ms ease-in, margin-top 500ms ease-in;
+  transition: opacity 250ms ease-in, margin-top 500ms ease-in, margin-bottom 500ms ease-in;
   -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
 }
 
@@ -853,12 +854,12 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-top: 0 !important;
 }
 
-.alert-dialog:empty {
+.alert-dialog:first-child:empty {
   padding: 0;
   margin-bottom: 0;
 }
 
-.alert-dialog:empty ~ .alert-dialog {
+.alert-dialog:not(.show) ~ .alert-dialog {
   transition: none;
   margin-top: 3.2125rem;
 }

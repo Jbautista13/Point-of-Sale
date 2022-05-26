@@ -799,7 +799,7 @@ function hideKeyPress() {
         alertDialog.classList.remove('show');
 
         alertDialog.addEventListener('transitionend', function hide(event) {
-            if (event.propertyName === 'margin-top' && !alertDialog.matches('.show'))
+            if (event.propertyName === 'opacity' && !alertDialog.matches('.show'))
             {
                 alertDialog.textContent = '';
                 alertDialog.removeEventListener('transitionend', hide);
