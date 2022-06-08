@@ -4,13 +4,14 @@ var removeButtons;
 var editButtons;
 var themeButtons;
 var editButton;
+var settingButton;
 var screencastStates = { showKeys: false, keyPressedCurrently: false }
 var dialogTimers = { hideKeyPressTimer: null, errorTimer: null };
 
-var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system'};
-var {numOfItems, names, prices, theme} = data;
+var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system', settings: {'Change Calculator': true}};
+var {numOfItems = 0, names = [], prices = [], theme = 'system', settings = {'change_calculator': true}} = data;
 
-theme = theme || 'system';
+var tempSettings = {...settings};
 
 updateNumberOfItemsStyle(numOfItems)
 
@@ -22,13 +23,18 @@ window.onload = function() {
     let list = document.querySelector('.order');
     let finishButton = document.querySelector('.complete');
     let cash = document.querySelector('#cash');
+    settingButton = document.getElementById('open-settings')
     themeButtons = document.querySelectorAll('.theme-button');
 
     cash.addEventListener('keydown', cashInput);
     done.addEventListener('click', finished);
     add.addEventListener('click', addHandler);
+    settingButton.addEventListener('click', settingHandler);
     finishButton.addEventListener('click', finishOrder);
     themeButtons.forEach(button => { button.addEventListener('click', changeTheme); });
+
+    //set previously saved settings
+    setSettings(true);
 
     //add previously saved items
     for (var i = 0; i < numOfItems; i++)
@@ -41,6 +47,8 @@ window.onload = function() {
         addEventListenersItem(item);
     }
     showElement(list);
+    document.querySelector(`[data-theme-name="${theme}"`).disabled = true;
+
 
     removeButtons = document.querySelectorAll('.item-remove-button');
     editButtons = document.querySelectorAll('.item-edit-button')
@@ -59,8 +67,9 @@ window.onload = function() {
             continueOrder(editButton);
         }
         else if (currentlyEditing == "true") { // User wants to exit edit mode
+            hideElement(settingButton, 'margin-bottom');
             hideElement(controls, 'any');
-            hideElement(themeControls, 'margin-top');
+            // hideElement(themeControls, 'margin-top');
             removeButtons.forEach( button => {
                 hideElement(button, 'any');
                 button.disabled = true;
@@ -78,7 +87,8 @@ window.onload = function() {
         }
         else { // User wants to edit menu
             showElement(controls);
-            showElement(themeControls);
+            // showElement(themeControls);
+            showElement(settingButton);
             removeButtons.forEach( button => {
                 showElement(button);
                 button.disabled = false;
@@ -114,7 +124,8 @@ function finishOrder(event) {
     else if (finishingOrder == "true") {
         clearOrder();
         showElement(document.querySelector('.order'));
-        hideElement(document.querySelector('.change-container'), 'margin-top');
+        if (settings['change_calculator'] != false)
+            hideElement(document.querySelector('.change-container'), 'margin-top');
         items.forEach( item => item.tabIndex = "0");
         items[0].focus();
         document.body.dataset.finishingOrder = "false";
@@ -125,10 +136,15 @@ function finishOrder(event) {
         items.forEach( item => item.tabIndex = "-1");
         document.body.dataset.finishingOrder = "true";
         hideElement(document.querySelector('.order'), 'margin-top');
-        clearChangeDue();
-        showElement(document.querySelector('.change-container'))
-        document.querySelector('input#cash').focus()
-        document.querySelector('input#cash').scrollIntoView();
+        
+        if (settings['change_calculator'] != false)
+        {
+            clearChangeDue();
+            showElement(document.querySelector('.change-container'))
+            document.querySelector('input#cash').focus()
+            document.querySelector('input#cash').scrollIntoView();
+        }
+
         backButton.firstElementChild.innerText = "Back";
         completeButton.firstElementChild.innerText = "Finish";
     }
@@ -206,7 +222,7 @@ function removeItem(event) {
         }
     });
     
-    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
+    saveData();
     removeButtons = document.querySelectorAll('.item-remove-button');
     editButtons = document.querySelectorAll('.item-edit-button');
 }
@@ -268,6 +284,35 @@ function editItem(event) {
 
 }
 
+function settingHandler(event) {
+    event.stopPropagation();
+    let form = document.querySelector('.settings-modal');
+
+    disableInputsForModal();
+    document.body.dataset.currentModal = "settings";
+    showElement(form);
+
+    let exitButton = form.querySelector('.x-button')
+    let cancel = form.querySelector('.cancel');
+    let confirm = form.querySelector('.confirm');
+    
+    exitButton.addEventListener('click', cancelModal)
+
+    cancel.addEventListener('click', function()
+    {
+        hideElement(form, 'any');
+        exitButton.removeEventListener('click', cancelModal)
+        confirm.removeEventListener('click', confirmSaveSettings);
+        setSettings();
+        tempSettings = {...settings};
+        enableDefaultControls();
+        document.body.dataset.currentModal = "";
+    }, { once: true })
+
+    confirm.addEventListener('click', confirmSaveSettings);
+
+}
+
 function addHandler(event) {
     event.stopPropagation();
     let form = document.querySelector('.modal-add-item');
@@ -299,24 +344,30 @@ function addHandler(event) {
 
     }, { once: true });
 
-    confirm.addEventListener('click', confirmAddItem);   
+    confirm.addEventListener('click', confirmAddItem);
 }
 
 function changeTheme(event)
 {
+    document.querySelector(`[data-theme-name="${theme}"`).disabled = false;
+    event.currentTarget.disabled = true;
     theme = event.currentTarget.dataset.themeName;
+    document.documentElement.dataset.theme = theme;
+    saveData();
     updateTheme();
-    document.querySelector(':root').dataset.theme = theme;
-    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
-    console.log(event.currentTarget); 
+}
+
+function settingButtonHandler(event)
+{
+    let setting = event.currentTarget;
+
+    tempSettings[setting.id] = setting.checked;
 }
 
 function cashInput(event)
 {
     let cashInput = event.target
     let changeInput = cashInput.parentElement.nextElementSibling.children[1]
-
-    console.log(event.code)
     if (event.code == "Escape" || event.code == "Enter") return;
 
     event.preventDefault();
@@ -367,6 +418,8 @@ function cancelModal() {
         document.querySelector('#cancel-add-item').click()
     else if (modal == "editing")
         document.querySelector('#cancel-edit-item').click()
+    else if (modal == "settings")
+        document.getElementById('cancel-settings-change').click()
 }
 
 function closeMenus(event) {
@@ -463,12 +516,22 @@ function confirmEditItem(event)
         names[itemPos] = name.value;
         prices[itemPos] = itemPrice;
         
-        localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
-        
-        console.log(menuItem.children[3].children[1])
+        saveData();
+
         menuItem.children[3].children[1].dispatchEvent(new Event('input'));
         cancel.dispatchEvent(new Event('click'));
     }
+}
+
+function confirmSaveSettings(event)
+{
+    let form = event.currentTarget.parentElement.parentElement;
+    let cancel = form.querySelector('.cancel');
+    
+    settings = {...tempSettings};
+    saveData();
+
+    cancel.dispatchEvent(new Event('click'));
 }
 
 function confirmAddItem(event)
@@ -484,7 +547,6 @@ function confirmAddItem(event)
         cancel.dispatchEvent(new Event('click'));
     else if (!(name.value.trim().length))
     {
-        console.log(!(name.value.trim().length))
         document.activeElement.blur()
         let errorDialog = document.querySelector('#alert-error')
         form.classList.add('modal-shake');
@@ -581,7 +643,7 @@ function confirmAddItem(event)
 
         numOfItems = Number(numOfItems) + 1;
         updateNumberOfItemsStyle(numOfItems);
-        localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
+        saveData();
 
         name.value = "";
         price.value = "";
@@ -624,6 +686,17 @@ function updateFooterOrder()
     editButton.nextElementSibling.dataset.order = Number(numOfItems) + 2;
 }
 
+function setSettings(init = false)
+{
+    console.log(settings)
+    for (const [setting, state] of Object.entries(settings)) {
+        let settingCheckbox = document.getElementById(setting)
+        settingCheckbox.checked = state;
+        if (init)
+            settingCheckbox.addEventListener('click', settingButtonHandler)
+    }
+}
+
 function addEventListenersItem(item)
 {
     let removeButton = item.querySelector('.item-remove-button');
@@ -645,9 +718,6 @@ function disableInputsForModal()
 {
     let body = document.querySelector('body');
     let controls = document.querySelector('.controls').children;
-    themeButtons.forEach( button => {
-        button.disabled = true;
-    });
     removeButtons.forEach( button => {
         hideElement(button, 'any');
         button.disabled = true;
@@ -659,6 +729,7 @@ function disableInputsForModal()
     body.classList.add('no-scroll');
     controls[0].disabled = true;
     controls[1].disabled = true;
+    settingButton.disabled = true;
     editButton.disabled = true;
 }
 
@@ -666,9 +737,6 @@ function enableDefaultControls()
 {
     let body = document.querySelector('body');
     let controls = document.querySelector('.controls').children;
-    themeButtons.forEach( button => {
-        button.disabled = false;
-    });
     removeButtons.forEach( button => {
         showElement(button);
         button.disabled = false;
@@ -680,6 +748,7 @@ function enableDefaultControls()
     body.classList.remove('no-scroll');
     controls[0].disabled = false;
     controls[1].disabled = false;
+    settingButton.disabled = false;
     editButton.disabled = false;
 }
 
@@ -748,7 +817,7 @@ function reOrderStorage(oldIndex, newIndex)
     prices.splice(oldIndex, 1);
     names.splice(newIndex, 0, itemName);
     prices.splice(newIndex, 0, itemPrice);
-    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme}));
+    saveData();
     reOrder();
 }
 
@@ -776,8 +845,9 @@ function updateTheme()
                     document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
                 else if (window.matchMedia('(prefers-color-scheme: dark').matches)
                     document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1c1c1c');
-                else
+                else {
                     document.querySelector('meta[name="theme-color"]').setAttribute('content', window.getComputedStyle(document.body).getPropertyValue('background-color'));
+                }
             }
             break;
     
@@ -821,6 +891,10 @@ function hideErrorDialog() {
             alertDialog.removeEventListener('transitionend', hide);
         }
     });
+}
+
+function saveData() {
+    localStorage.setItem('PoSData', JSON.stringify({numOfItems, names, prices, theme, settings}));
 }
 
 function escapeInput(input)
@@ -984,9 +1058,7 @@ document.addEventListener('keydown', press => {
 
     if (finishingOrder == "true") // Order Total Shown, Menu Hidden
     {
-        console.log(document.activeElement.isContentEditable)
         if (document.activeElement.isContentEditable) {
-            console.log('hello');
         }
         if (currentElement.parentElement.matches('.footer'))
         {
@@ -1100,6 +1172,10 @@ document.addEventListener('keydown', press => {
             else if (keyPressed == ENTER)
                 document.querySelector('.complete').click();
         }
+    }
+    else if (currentModal == "settings")
+    {
+        
     }
     else if (currentModal == "adding" || currentModal == "editing") // Adding new menu item
     {
