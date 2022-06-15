@@ -320,8 +320,8 @@ li,
 
 #order-summary-container:not(.show) {
   opacity: 0 !important;
-  margin-top: calc(-1rem * ((var(--order-num-of-items) * 41) + 16) / 32);
-  margin-bottom: calc(-1rem * ((var(--order-num-of-items) * 41) + 16) / 32);
+  margin-top: calc(-1rem * ((var(--order-num-of-items) * 34) + 16) / 32);
+  margin-bottom: calc(-1rem * ((var(--order-num-of-items) * 34) + 16) / 32);
 }
 
 .total-container,
