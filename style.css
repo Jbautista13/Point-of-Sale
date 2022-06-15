@@ -340,9 +340,14 @@ li,
   box-shadow: none;
   border-bottom: 0.0625rem solid var(--font-color);
 }
-.total-container h1,
-.summary-item-entry h1 {
+
+.total-container h1 {
   font-size: 1.5rem;
+  margin-block: .25em;
+}
+
+.summary-item-entry h1 {
+  font-size: 1.25rem;
   margin-block: .25em;
 }
 
