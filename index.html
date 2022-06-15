@@ -106,6 +106,13 @@
     <div class="modal-content" style="margin-block: 2.5rem;">
       <div class="setting-entry">
         <div class="name-setting-entry">
+          <h3 class="title-setting-entry">Show Order Summary</h3>
+          <h4 class="subtitle-setting-entry">Show Order Summary before Clearing</h4>
+        </div>
+        <input id="show_order_summary" type="checkbox" aria-label="Show Order Summary Before Clearing Toggle">
+      </div>
+      <div class="setting-entry">
+        <div class="name-setting-entry">
           <h3 class="title-setting-entry">Change Calculator</h3>
           <h4 class="subtitle-setting-entry">Calculate Change at end of Order</h4>
         </div>
@@ -124,13 +131,6 @@
           <h4 class="subtitle-setting-entry">Alert when receipts aren't saved</h4>
         </div>
         <input id="receipt_alerts" type="checkbox" aria-label="Active Receipt Alerts Toggle">
-      </div>
-      <div class="setting-entry hidden">
-        <div class="name-setting-entry">
-          <h3 class="title-setting-entry">Show Order Summary</h3>
-          <h4 class="subtitle-setting-entry">Show Order Summary before Clearing</h4>
-        </div>
-        <input id="show_order_summary" type="checkbox" aria-label="Show Order Summary Before Clearing Toggle">
       </div>
       <div class="setting-entry hidden">
         <div class="name-setting-entry">
@@ -185,7 +185,7 @@
   </div>
 
   <div class="container">
-    <button class="setting-svg-container hidden" id="open-settings">
+    <button class="setting-svg-container hidden" id="open-settings" data-order="-1.25">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-width="2" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
         <path stroke-linecap="round" stroke-width="2" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -205,6 +205,7 @@
         <h1>Total</h1>
         <input aria-label="Price of Order" type="text" value="$0.00" data-total="0" id="total" readonly tabindex="-1">
       </div>
+      <div id="order-summary-container" class="hidden"></div>
       <div class="change-container hidden" style="flex-direction: column;">
         <div class="total-container">
           <h1 style="margin-block: .25em;">Cash</h1>
