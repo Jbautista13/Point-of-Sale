@@ -1072,6 +1072,11 @@ input[type="number"]::-webkit-outer-spin-button {
     font-size: 1rem;
   }
 
+  .summary-item-entry h1 {
+    font-size: 1rem;
+    margin-block: .25em;
+  }
+
   input#total {
     margin-bottom: .3125rem;
   }
