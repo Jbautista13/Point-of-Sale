@@ -7,11 +7,12 @@ var editButton;
 var settingButton;
 var screencastStates = { showKeys: false, keyPressedCurrently: false }
 var dialogTimers = { hideKeyPressTimer: null, errorTimer: null };
+var orderQuantities = { }
 
 var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system', settings: {'Change Calculator': true}};
-var {numOfItems = 0, names = [], prices = [], theme = 'system', settings = {'change_calculator': true}} = data;
+var {numOfItems = 0, names = [], prices = [], theme = 'system', settings = {'show_order_summary': true, 'change_calculator': true}} = data;
 
-var tempSettings = {...settings};
+var tempSettings;
 
 updateNumberOfItemsStyle(numOfItems)
 
@@ -23,12 +24,14 @@ window.onload = function() {
     let list = document.querySelector('.order');
     let finishButton = document.querySelector('.complete');
     let cash = document.querySelector('#cash');
+    let total = document.querySelector('#total');
     settingButton = document.getElementById('open-settings')
     themeButtons = document.querySelectorAll('.theme-button');
 
     cash.addEventListener('keydown', cashInput);
     done.addEventListener('click', finished);
     add.addEventListener('click', addHandler);
+    total.addEventListener('input', blankOrderHandler)
     settingButton.addEventListener('click', settingHandler);
     finishButton.addEventListener('click', finishOrder);
     themeButtons.forEach(button => { button.addEventListener('click', changeTheme); });
@@ -43,6 +46,7 @@ window.onload = function() {
         item.tabIndex = 0;
         item.dataset.order = Number(i) + 1;
         item.innerHTML = createListItem(names[i], prices[i], i);
+        orderQuantities[names[i]] = 0
         list.appendChild(item);
         addEventListenersItem(item);
     }
@@ -58,24 +62,26 @@ window.onload = function() {
     editButton.addEventListener('click', event => {
         let controls = document.querySelector('.controls');
         let items = document.querySelectorAll('li');
-        let themeControls = document.querySelector('.theme-picker');
 
         const currentlyEditing = document.body.dataset.inEdit;
         const finishingOrder = document.body.dataset.finishingOrder;
+        const blankOrder = document.body.dataset.blankOrder;
 
-        if (finishingOrder == "true") { // User doesn't want to clear order
+        if (finishingOrder == "true") { // User doesn't want to finish/save order
             continueOrder(editButton);
+        }
+        else if (blankOrder == "false") {
+            clearOrder();
         }
         else if (currentlyEditing == "true") { // User wants to exit edit mode
             hideElement(settingButton, 'margin-bottom');
-            hideElement(controls, 'any');
-            // hideElement(themeControls, 'margin-top');
+            hideElement(controls);
             removeButtons.forEach( button => {
-                hideElement(button, 'any');
+                hideElement(button);
                 button.disabled = true;
             });
             editButtons.forEach( button => {
-                hideElement(button, 'any');
+                hideElement(button);
                 button.disabled = true;
             });
             items.forEach( item => item.tabIndex = "0");
@@ -87,7 +93,6 @@ window.onload = function() {
         }
         else { // User wants to edit menu
             showElement(controls);
-            // showElement(themeControls);
             showElement(settingButton);
             removeButtons.forEach( button => {
                 showElement(button);
@@ -113,29 +118,42 @@ var formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'U
 function finishOrder(event) {
     let completeButton = event.target || event;
     let items = document.querySelectorAll('li');
-    let total = document.querySelector('.total');
     let totalValue = document.querySelector('#total').dataset.total;
-    let container = document.querySelector('.container');
-    let backButton = completeButton.previousElementSibling;
+    let itemSummaryContainer = document.getElementById('order-summary-container');
+    let backButton = editButton;
     const finishingOrder = document.body.dataset.finishingOrder;
 
     if (totalValue == "0") {
     }
+    else if (settings['show_order_summary'] == false)
+        clearOrder();
     else if (finishingOrder == "true") {
         clearOrder();
         showElement(document.querySelector('.order'));
+        hideElement(itemSummaryContainer, 'margin-top');
         if (settings['change_calculator'] != false)
             hideElement(document.querySelector('.change-container'), 'margin-top');
         items.forEach( item => item.tabIndex = "0");
         items[0].focus();
         document.body.dataset.finishingOrder = "false";
-        backButton.firstElementChild.innerText = "Edit";
         completeButton.firstElementChild.innerText = "Complete";
     }
     else {
         items.forEach( item => item.tabIndex = "-1");
         document.body.dataset.finishingOrder = "true";
         hideElement(document.querySelector('.order'), 'margin-top');
+
+        while (itemSummaryContainer.firstChild) {itemSummaryContainer.removeChild(itemSummaryContainer.firstChild);}
+        let itemQuantity = 0;
+        for (const [item, quantity] of Object.entries(orderQuantities)) {
+            if (quantity != 0)
+            {
+                itemSummaryContainer.appendChild(itemSummaryEntry(item, quantity))
+                itemQuantity++
+            }
+        }
+        updateCurrentOrderSize(itemQuantity)
+        showElement(itemSummaryContainer)
         
         if (settings['change_calculator'] != false)
         {
@@ -155,9 +173,10 @@ function continueOrder(backButton) {
     let completeButton = backButton.nextElementSibling;
     showElement(document.querySelector('.order'));
     hideElement(document.querySelector('.change-container'), 'margin-top');
+    hideElement(document.getElementById('order-summary-container'), 'margin-top');
     items.forEach( item => item.tabIndex = "0");
     document.body.dataset.finishingOrder = "false";
-    backButton.firstElementChild.innerText = "Edit";
+    backButton.firstElementChild.innerText = "Clear";
     completeButton.firstElementChild.innerText = "Complete";
 
 }
@@ -199,7 +218,7 @@ function removeItem(event) {
     let listItem = removeButton.parentElement;
     let item = removeButton.parentElement.querySelector('input');        
     let totalDisp = document.querySelector('#total');
-    let { price, quantity} = item.dataset;
+    let { name , price, quantity} = item.dataset;
     let { total } = totalDisp.dataset;
     let orderTotal = Number(total) - (quantity * price);
     let itemOrder = listItem.dataset.order;
@@ -211,6 +230,8 @@ function removeItem(event) {
     totalDisp.value = formatter.format(orderTotal);
     totalDisp.dataset.total = orderTotal;
     numOfItems = Number(numOfItems) - 1;
+    delete orderQuantities[name]
+    console.log(orderQuantities);
     updateNumberOfItemsStyle(numOfItems)
 
     listItem.classList.add('remove')
@@ -232,12 +253,14 @@ function inputChange(event)
     let item = event.target || event;
     let totalDisp = document.querySelector('#total');
     let newQuantity = item.value;
-    let { price, quantity} = item.dataset;
+    let { name, price, quantity} = item.dataset;
     let { total } = totalDisp.dataset;
 
+    orderQuantities[name] = newQuantity;
     let orderTotal = Number(total) + (newQuantity * price) - (quantity * price);
 
     totalDisp.value = formatter.format(orderTotal);
+    totalDisp.dispatchEvent(new Event('input'));
     totalDisp.dataset.total = orderTotal;
     item.dataset.quantity = newQuantity;
 }
@@ -268,7 +291,7 @@ function editItem(event) {
 
     cancel.addEventListener('click', function () {
         
-        hideElement(form, 'any');
+        hideElement(form);
         exitButton.removeEventListener('click', cancelModal)
         confirm.removeEventListener('click', confirmEditItem);
         name.value = "";
@@ -300,7 +323,7 @@ function settingHandler(event) {
 
     cancel.addEventListener('click', function()
     {
-        hideElement(form, 'any');
+        hideElement(form);
         exitButton.removeEventListener('click', cancelModal)
         confirm.removeEventListener('click', confirmSaveSettings);
         setSettings();
@@ -334,7 +357,7 @@ function addHandler(event) {
     cancel.addEventListener('click', function ()
     {
         
-        hideElement(form, 'any');
+        hideElement(form);
         exitButton.removeEventListener('click', cancelModal)
         confirm.removeEventListener('click', confirmAddItem);
         name.value = "";
@@ -362,6 +385,23 @@ function settingButtonHandler(event)
     let setting = event.currentTarget;
 
     tempSettings[setting.id] = setting.checked;
+}
+
+function blankOrderHandler(event)
+{
+    console.log(event.target)
+    let totalValue = event.target.value;
+
+    if (totalValue == "$0.00")
+    {
+        document.body.dataset.blankOrder = "true";
+        editButton.firstElementChild.innerText = "Edit";
+    }
+    else if (totalValue != "$0.00")
+    {
+        document.body.dataset.blankOrder = "false";
+        editButton.firstElementChild.innerText = "Clear";
+    }
 }
 
 function cashInput(event)
@@ -642,6 +682,8 @@ function confirmAddItem(event)
         prices[numOfItems] = itemPrice;
 
         numOfItems = Number(numOfItems) + 1;
+        orderQuantities[name.value] = 0;
+        console.log(orderQuantities)
         updateNumberOfItemsStyle(numOfItems);
         saveData();
 
@@ -657,6 +699,19 @@ function confirmAddItem(event)
         
         name.focus();
     }
+}
+
+function itemSummaryEntry(name, quantity) {
+    let itemEntry = document.createElement('div')
+    let itemEntryName = document.createElement('h1')
+    let itemEntryQuantity = document.createElement('h1')
+    itemEntry.classList.add('summary-item-entry')
+    itemEntryName.innerText = name
+    itemEntryQuantity.innerText = quantity
+    itemEntry.appendChild(itemEntryName)
+    itemEntry.appendChild(document.createElement('hr'))
+    itemEntry.appendChild(itemEntryQuantity)
+    return itemEntry;
 }
 
 function createListItem(nameInput, priceInput, orderInput)
@@ -688,12 +743,21 @@ function updateFooterOrder()
 
 function setSettings(init = false)
 {
+    if (init)
+    {
+        if (settings['show_order_summary'] == null)
+            settings['show_order_summary'] = true;
+        if (settings['change_calculator'] == null)
+            settings['change_calculator'] = true;
+        tempSettings = {...settings};
+    }
     console.log(settings)
     for (const [setting, state] of Object.entries(settings)) {
         let settingCheckbox = document.getElementById(setting)
         settingCheckbox.checked = state;
-        if (init)
+        if (init) {
             settingCheckbox.addEventListener('click', settingButtonHandler)
+        }
     }
 }
 
@@ -719,11 +783,11 @@ function disableInputsForModal()
     let body = document.querySelector('body');
     let controls = document.querySelector('.controls').children;
     removeButtons.forEach( button => {
-        hideElement(button, 'any');
+        hideElement(button);
         button.disabled = true;
     });
     editButtons.forEach( button => {
-        hideElement(button, 'any');
+        hideElement(button);
         button.disabled = true;
     });
     body.classList.add('no-scroll');
@@ -759,7 +823,7 @@ function showElement(element)
     element.classList.add('show');
 }
 
-function hideElement(element, transition)
+function hideElement(element, transition = 'any')
 {
     element.classList.remove('show');
     element.addEventListener('transitionend', function hide(event) {
@@ -859,7 +923,12 @@ function updateNumberOfItemsStyle(itemCount)
     document.querySelector(':root').style.setProperty('--num-of-items', Number(itemCount));
 }
 
-function finished() { document.querySelector('.edit').dispatchEvent(new Event('click')); };
+function updateCurrentOrderSize(itemCount)
+{
+    document.querySelector(':root').style.setProperty('--order-num-of-items', Number(itemCount));
+}
+
+function finished() { editButton.dispatchEvent(new Event('click')); };
 
 function hideKeyPress() {
     screencastStates.keyPressedCurrently = false
@@ -1075,8 +1144,9 @@ document.addEventListener('keydown', press => {
                     if (position != Number(numOfItems) + 2)
                         keyboardMoveDown(position, SPACEBETWEENMENUITEMS);
                     break;
+                case EXIT:
                 case BACK:
-                    document.querySelector('.edit').click();
+                    editButton.click();
             }
         }
         else
@@ -1087,11 +1157,11 @@ document.addEventListener('keydown', press => {
                 case A:
                 case RIGHT:
                 case D:
-                    document.querySelector('.edit').focus();
+                    editButton.focus();
                     break;
                 case EXIT:
                 case BACK:
-                    document.querySelector('.edit').click();
+                    editButton.click();
                     break;
                 case ENTER:
                     document.querySelector('.complete').click();
@@ -1100,6 +1170,12 @@ document.addEventListener('keydown', press => {
     }
     else if(currentlyEditing != "true") // Creating Order, setting item quantities
     {
+
+        if (keyPressed == EXIT) {
+            editButton.click();
+            return;
+        }
+
         if (currentElement.matches('li'))
         {
             const position = currentElement.dataset.order;
@@ -1254,7 +1330,7 @@ document.addEventListener('keydown', press => {
                     if (position != Number(numOfItems) - .75)
                         keyboardMoveDown(position, SPACEBETWEENMENUITEMS)
                     else
-                        document.querySelector('.edit').focus();
+                        editButton.focus();
                     press.preventDefault();
                     break;
                 case RIGHT:
@@ -1285,7 +1361,7 @@ document.addEventListener('keydown', press => {
                     if (position != Number(numOfItems) - .25)
                         keyboardMoveDown(position, SPACEBETWEENMENUITEMS)
                     else
-                        document.querySelector('.edit').focus();
+                        editButton.focus();
                     press.preventDefault();
                     break;
                 case LEFT:
@@ -1305,6 +1381,11 @@ document.addEventListener('keydown', press => {
         {
             const position = currentElement.dataset.order;
             switch(keyPressed) {
+                case UP:
+                case W:
+                    keyboardMoveUp(-0.75, SPACEBETWEENITEMCONTROLS)
+                    press.preventDefault();
+                    break;
                 case DOWN:
                 case S:
                     keyboardMoveDown(position, SPACEBETWEENMENUITEMS)
@@ -1319,6 +1400,20 @@ document.addEventListener('keydown', press => {
                 case D:
                     if (position != -0.25)
                         keyboardMoveDown(position, SPACEBETWEENITEMCONTROLS)
+                    break;
+                case EXIT:
+                    finished();
+                    break;
+            }
+        }
+        else if (currentElement.matches('.setting-svg-container'))
+        {
+            const position = currentElement.dataset.order;
+            switch(keyPressed) {
+                case DOWN:
+                case S:
+                    keyboardMoveDown(position, SPACEBETWEENMENUITEMS)
+                    press.preventDefault();
                     break;
                 case EXIT:
                     finished();
