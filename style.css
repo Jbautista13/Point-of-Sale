@@ -1077,6 +1077,12 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-block: .25em;
   }
 
+  #order-summary-container:not(.show) {
+    opacity: 0 !important;
+    margin-top: calc(-1rem * ((var(--order-num-of-items) * 27) + 16) / 32);
+    margin-bottom: calc(-1rem * ((var(--order-num-of-items) * 27) + 16) / 32);
+  }
+
   input#total {
     margin-bottom: .3125rem;
   }
