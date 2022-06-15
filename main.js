@@ -9,7 +9,7 @@ var screencastStates = { showKeys: false, keyPressedCurrently: false }
 var dialogTimers = { hideKeyPressTimer: null, errorTimer: null };
 var orderQuantities = { }
 
-var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system', settings: {'Change Calculator': true}};
+var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system', settings: {'show_order_summary': true, 'change_calculator': true}};
 var {numOfItems = 0, names = [], prices = [], theme = 'system', settings = {'show_order_summary': true, 'change_calculator': true}} = data;
 
 var tempSettings;
