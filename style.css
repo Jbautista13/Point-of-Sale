@@ -309,12 +309,7 @@ li,
 }
 
 .change-container:not(.show) {
-opacity: 0 !important;
-margin-bottom: -3.6165625rem !important;
-margin-top: -3.02125rem !important;
-}
-
-#order-summary-container:not(.hidden) ~ .change-container:not(.show) {
+  opacity: 0 !important;
   margin-bottom: -4.625rem !important;
   margin-top: -3.725rem !important;
 }
