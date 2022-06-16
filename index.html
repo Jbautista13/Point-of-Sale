@@ -97,11 +97,11 @@
       <button id="confirm-edit-item" class="filled-button confirm">Edit Item</button>
     </div>
   </div>
-  <div data-adding="false" class="modal settings-modal hidden">
+  <div data-adding="false" id="settings-modal" class="modal hidden" data-items="7">
     <div class="modal-title">
       <h2>Settings</h2>
     </div>
-    <button aria-label="Exit Settings" id="exit-settings-modal" class="modal-exit-button x-button show">
+    <button aria-label="Exit Settings" id="exit-settings-modal" class="modal-exit-button x-button show" data-setting-order="0">
     </button>
     <div class="modal-content" style="margin-block: 2.5rem;">
       <div class="setting-entry">
@@ -109,14 +109,14 @@
           <h3 class="title-setting-entry">Show Order Summary</h3>
           <h4 class="subtitle-setting-entry">Show Order Summary before Clearing</h4>
         </div>
-        <input id="show_order_summary" type="checkbox" aria-label="Show Order Summary Before Clearing Toggle">
+        <input id="show_order_summary" type="checkbox" aria-label="Show Order Summary Before Clearing Toggle" data-setting-order="1">
       </div>
       <div class="setting-entry">
         <div class="name-setting-entry">
           <h3 class="title-setting-entry">Change Calculator</h3>
           <h4 class="subtitle-setting-entry">Calculate Change at end of Order</h4>
         </div>
-        <input id="change_calculator" type="checkbox" aria-label="Activate Change Calculator Toggle">
+        <input id="change_calculator" type="checkbox" aria-label="Activate Change Calculator Toggle" data-setting-order="2">
       </div>
       <div class="setting-entry hidden">
         <div class="name-setting-entry">
@@ -150,7 +150,7 @@
           <h3 class="title-setting-entry">Theme</h3>
           <h4 class="subtitle-setting-entry">Select which theme to follow</h4>
         </div>
-        <div class="theme-picker show">
+        <div id="theme-picker" class="show">
           <button aria-label="Change theme to Light" data-theme-name="light" class="theme-button" id="light-theme">
             <span class="svg">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -179,8 +179,8 @@
       </div>
     </div>
     <div class="footer_modal">
-      <button id="cancel-settings-change" class="cancel">Cancel</button>
-      <button id="confirm-settings-change" class="filled-button confirm" style="padding: 0.75em 1.5em;">Save</button>
+      <button id="cancel-settings-change" class="cancel" data-setting-order="5">Cancel</button>
+      <button id="confirm-settings-change" class="filled-button confirm" data-setting-order="6" style="padding: 0.75em 1.5em;">Save</button>
     </div>
   </div>
 
