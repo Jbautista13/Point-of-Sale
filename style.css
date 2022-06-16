@@ -328,7 +328,6 @@ li,
   align-items: center;
 }
 .total-container input {
-  border-bottom: 0.0625rem solid rgb(127 127 127);
   font-size: 1.5rem !important;
   border-radius: 0 !important;
   height: fit-content;
@@ -338,7 +337,6 @@ li,
 
 .total-container input:focus {
   box-shadow: none;
-  border-bottom: 0.0625rem solid var(--font-color);
 }
 
 .total-container h1 {
@@ -368,7 +366,10 @@ ul li:first-child {
   scroll-margin-top: max(2rem, calc(env(safe-area-inset-top) + 1rem));
 }
 
-ul li:not(ul li:first-child) { scroll-margin-top: calc(env(safe-area-inset-top) + .5rem); }
+.menu-item-control,
+ul li:not(ul li:first-child) {
+  scroll-margin-top: calc(env(safe-area-inset-top) + .5rem);
+}
 
 li,
 .total,
