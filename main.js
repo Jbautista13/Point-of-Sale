@@ -178,6 +178,7 @@ function continueOrder(backButton) {
     hideElement(document.querySelector('.change-container'), 'margin-top');
     hideElement(document.getElementById('order-summary-container'), 'margin-top');
     items.forEach( item => item.tabIndex = "0");
+    items[0].focus();
     document.body.dataset.finishingOrder = "false";
     backButton.firstElementChild.innerText = "Clear";
     completeButton.firstElementChild.innerText = "Complete";
