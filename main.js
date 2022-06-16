@@ -413,7 +413,7 @@ function cashInput(event)
 {
     let cashInput = event.target
     let changeInput = cashInput.parentElement.nextElementSibling.children[1]
-    if (event.code == "Escape" || event.code == "Enter") return;
+    if (event.code == "Escape" || event.code == "Enter" || event.metaKey || event.ctrlKey) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -422,6 +422,9 @@ function cashInput(event)
 
     if (isFinite(event.key))
         cashInput.value = formatter.format(Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 10) + (event.key / 100));
+    else if (event.altKey && event.code == "Backspace") {
+        cashInput.value = formatter.format(0);
+    }
     else if (event.code == "Backspace") {
         cashInput.value = formatter.format(Math.floor(Number(cashInput.value.replace(/[^0-9.-]+/g, '') * 10))  / 100);
     }
@@ -1281,6 +1284,17 @@ document.addEventListener('keydown', press => {
 
         if (position == null)
         {
+
+            switch (keyPressed)
+            {
+                case ENTER:
+                    document.getElementById('confirm-settings-change').click();
+                    break;
+                case EXIT:
+                    document.getElementById('cancel-settings-change').click();
+                    break;
+            }
+
             focusSettingModal();
             return;
         }
@@ -1302,16 +1316,22 @@ document.addEventListener('keydown', press => {
             case LEFT:
             case A:
                 if (currentElement.matches('input[type="checkbox"]'))
-                    currentElement.checked = false;
+                    currentElement.checked == true && currentElement.click();
                 else if (position != "0")
                     focusSettingModal(Number(position) - 1);
                 break;
             case RIGHT:
             case D:
                 if (currentElement.matches('input[type="checkbox"]'))
-                    currentElement.checked = true;
+                    currentElement.checked == false && currentElement.click();
                 else if (position != maxPosition)
                     focusSettingModal(Number(position) + 1);
+                break;
+            case ENTER:
+                if (currentElement.matches('input[type="checkbox"]'))
+                    document.getElementById('confirm-settings-change').click();
+                else if (currentElement.disabled == true)
+                    document.getElementById('confirm-settings-change').click();
                 break;
             case EXIT:
                 document.getElementById('cancel-settings-change').click();
