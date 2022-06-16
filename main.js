@@ -8,6 +8,7 @@ var settingButton;
 var screencastStates = { showKeys: false, keyPressedCurrently: false }
 var dialogTimers = { hideKeyPressTimer: null, errorTimer: null };
 var orderQuantities = { }
+var settingModal;
 
 var data = JSON.parse(localStorage.getItem('PoSData')) || {numOfItems: 0, names: [], prices: [], theme: 'system', settings: {'show_order_summary': true, 'change_calculator': true}};
 var {numOfItems = 0, names = [], prices = [], theme = 'system', settings = {'show_order_summary': true, 'change_calculator': true}} = data;
@@ -27,6 +28,7 @@ window.onload = function() {
     let total = document.querySelector('#total');
     settingButton = document.getElementById('open-settings')
     themeButtons = document.querySelectorAll('.theme-button');
+    settingModal = document.getElementById('settings-modal')
 
     cash.addEventListener('keydown', cashInput);
     done.addEventListener('click', finished);
@@ -52,6 +54,7 @@ window.onload = function() {
     }
     showElement(list);
     document.querySelector(`[data-theme-name="${theme}"`).disabled = true;
+    updateThemeOrderAttr();
 
 
     removeButtons = document.querySelectorAll('.item-remove-button');
@@ -309,7 +312,7 @@ function editItem(event) {
 
 function settingHandler(event) {
     event.stopPropagation();
-    let form = document.querySelector('.settings-modal');
+    let form = settingModal;
 
     disableInputsForModal();
     document.body.dataset.currentModal = "settings";
@@ -378,6 +381,7 @@ function changeTheme(event)
     document.documentElement.dataset.theme = theme;
     saveData();
     updateTheme();
+    updateThemeOrderAttr();
 }
 
 function settingButtonHandler(event)
@@ -470,7 +474,7 @@ function closeMenus(event) {
     }
     else
     {
-        if (!event.target.closest('.container') && !event.target.closest('.theme-picker') && !event.target.closest('.modal'))
+        if (!event.target.closest('.container') && !event.target.closest('#theme-picker') && !event.target.closest('.modal'))
             finished();
     }
 }
@@ -888,7 +892,7 @@ function reOrderStorage(oldIndex, newIndex)
 function outsideViewport(element) {
     var pos = element.getBoundingClientRect();
     var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-    return !(pos.bottom > 0 && pos.bottom <= viewHeight && pos.top > 0 &&  pos.top <= viewHeight);
+    return !(pos.bottom > 0 && pos.bottom <= viewHeight - Number(getComputedStyle(document.body).getPropertyValue('--safe-area-bottom').split('px')[0]) && pos.top > 0 + Number(getComputedStyle(document.body).getPropertyValue('--safe-area-top').split('px')[0]) && pos.top <= viewHeight);
 }
 
 function updateTheme()
@@ -916,6 +920,17 @@ function updateTheme()
             break;
     
     }
+}
+
+function updateThemeOrderAttr()
+{
+    let order = Number(settingModal.dataset.items) - 4;
+    [ ...document.getElementById('theme-picker').children].forEach(theme => {
+        if (theme.disabled)
+            theme.dataset.settingOrder = "-1";
+        else   
+            theme.dataset.settingOrder = order++;
+    })
 }
 
 function updateNumberOfItemsStyle(itemCount)
@@ -999,6 +1014,14 @@ function keyboardMoveDown(currentPosition, increment)
         item.scrollIntoView();
 }
 
+function focusSettingModal(position = 1)
+{
+    let item = document.querySelector(`[data-setting-order="${position}"]`);
+    item.focus();
+    if (outsideViewport(item))
+        item.scrollIntoView();
+}
+
 document.addEventListener('keydown', press => {
     const UP = "ArrowUp";
     const LEFT = "ArrowLeft";
@@ -1048,7 +1071,7 @@ document.addEventListener('keydown', press => {
     if (currentElement instanceof HTMLInputElement && keyPressed != EXIT)
     {
         // Pass through only to known modal sources, avoid messing with extensions/scripts
-        if (!currentElement.parentElement.matches('.modal-content') &&  !currentElement.matches('input#cash')) return;
+        if (!currentElement.parentElement.matches('.modal-content') && !currentElement.parentElement.matches('.setting-entry') &&  !currentElement.matches('input#cash')) return;
     }
 
     if (screencastStates.showKeys)
@@ -1252,6 +1275,47 @@ document.addEventListener('keydown', press => {
     else if (currentModal == "settings")
     {
         
+        let position = currentElement.dataset.settingOrder;
+        let maxPosition = Number(settingModal.dataset.items) - 1;
+
+        if (position == null)
+        {
+            focusSettingModal();
+            return;
+        }
+
+        console.log(position);
+
+        switch (keyPressed)
+        {
+            case UP:
+            case W:
+                if (position == "0") return;
+                focusSettingModal(Number(position) - 1);
+                break;
+            case DOWN:
+            case S:
+                if (position == maxPosition) return;
+                focusSettingModal(Number(position) + 1);
+                break;
+            case LEFT:
+            case A:
+                if (currentElement.matches('input[type="checkbox"]'))
+                    currentElement.checked = false;
+                else if (position != "0")
+                    focusSettingModal(Number(position) - 1);
+                break;
+            case RIGHT:
+            case D:
+                if (currentElement.matches('input[type="checkbox"]'))
+                    currentElement.checked = true;
+                else if (position != maxPosition)
+                    focusSettingModal(Number(position) + 1);
+                break;
+            case EXIT:
+                document.getElementById('cancel-settings-change').click();
+                break;
+        }
     }
     else if (currentModal == "adding" || currentModal == "editing") // Adding new menu item
     {
