@@ -22,7 +22,7 @@ window.onload = function() {
     editButton = document.querySelector('.edit');
     let done = document.querySelector('.finished');
     let add = document.querySelector('.add');
-    let list = document.querySelector('.order');
+    let list = document.querySelector('#order');
     let finishButton = document.querySelector('.complete');
     let cash = document.querySelector('#cash');
     let total = document.querySelector('#total');
@@ -48,10 +48,11 @@ window.onload = function() {
         item.tabIndex = 0;
         item.dataset.order = Number(i) + 1;
         item.innerHTML = createListItem(names[i], prices[i], i);
-        orderQuantities[names[i]] = 0
+        orderQuantities[`${names[i]}_${prices[i]}`] = 0
         list.appendChild(item);
         addEventListenersItem(item);
     }
+    console.log(orderQuantities)
     showElement(list);
     document.querySelector(`[data-theme-name="${theme}"`).disabled = true;
     updateThemeOrderAttr();
@@ -124,17 +125,17 @@ function finishOrder(event) {
     let totalValue = document.querySelector('#total').dataset.total;
     let itemSummaryContainer = document.getElementById('order-summary-container');
     let backButton = editButton;
-    const finishingOrder = document.body.dataset.finishingOrder;
+    const finishingOrder = document.body.dataset.finishingOrder === "true";
 
     if (totalValue == "0") {
     }
-    else if (settings['show_order_summary'] == false)
+    else if (!settings['show_order_summary'])
         clearOrder();
-    else if (finishingOrder == "true") {
+    else if (finishingOrder) {
         clearOrder();
-        showElement(document.querySelector('.order'));
+        showElement(document.querySelector('#order'));
         hideElement(itemSummaryContainer, 'margin-top');
-        if (settings['change_calculator'] != false)
+        if (settings['change_calculator'])
             hideElement(document.querySelector('.change-container'), 'margin-top');
         items.forEach( item => item.tabIndex = "0");
         items[0].focus();
@@ -144,7 +145,7 @@ function finishOrder(event) {
     else {
         items.forEach( item => item.tabIndex = "-1");
         document.body.dataset.finishingOrder = "true";
-        hideElement(document.querySelector('.order'), 'margin-top');
+        hideElement(document.querySelector('#order'), 'margin-top');
 
         while (itemSummaryContainer.firstChild) {itemSummaryContainer.removeChild(itemSummaryContainer.firstChild);}
         let itemQuantity = 0;
@@ -174,7 +175,7 @@ function finishOrder(event) {
 function continueOrder(backButton) {
     let items = document.querySelectorAll('li');
     let completeButton = backButton.nextElementSibling;
-    showElement(document.querySelector('.order'));
+    showElement(document.querySelector('#order'));
     hideElement(document.querySelector('.change-container'), 'margin-top');
     hideElement(document.getElementById('order-summary-container'), 'margin-top');
     items.forEach( item => item.tabIndex = "0");
@@ -234,7 +235,7 @@ function removeItem(event) {
     totalDisp.value = formatter.format(orderTotal);
     totalDisp.dataset.total = orderTotal;
     numOfItems = Number(numOfItems) - 1;
-    delete orderQuantities[name]
+    delete orderQuantities[`${name}_${price}`]
     console.log(orderQuantities);
     updateNumberOfItemsStyle(numOfItems)
 
@@ -260,7 +261,7 @@ function inputChange(event)
     let { name, price, quantity} = item.dataset;
     let { total } = totalDisp.dataset;
 
-    orderQuantities[name] = newQuantity;
+    orderQuantities[`${name}_${price}`] = newQuantity;
     let orderTotal = Number(total) + (newQuantity * price) - (quantity * price);
 
     totalDisp.value = formatter.format(orderTotal);
@@ -557,12 +558,13 @@ function confirmEditItem(event)
         menuItem.children[2].innerText = name.value
         menuItem.children[3].children[0].ariaLabel = "Decrement " + name.value
         menuItem.children[3].children[1].ariaLabel = "Number of " + name.value
-        menuItem.children[3].children[1].id = name.value.toLowerCase()
+        menuItem.children[3].children[1].id = `${name.value.toLowerCase()}`
         menuItem.children[3].children[1].dataset.price = itemPrice
         menuItem.children[3].children[2].ariaLabel = "Increment " + name.value
 
         names[itemPos] = name.value;
         prices[itemPos] = itemPrice;
+        setOrderQuantitiesObject();
         
         saveData();
 
@@ -585,7 +587,7 @@ function confirmSaveSettings(event)
 function confirmAddItem(event)
 {
     let form = document.querySelector('.modal-add-item');
-    let list = document.querySelector('.order');
+    let list = document.querySelector('#order');
     let confirm = event.currentTarget;
     let cancel = document.querySelector('#cancel-add-item');
     let name = document.querySelector('#add-item-name');
@@ -659,7 +661,7 @@ function confirmAddItem(event)
         fPrice[1].value = fPrice[1].value || '';
         let itemPrice = fPrice[1].value + fPrice[2].value + fPrice[3].value;
 
-        if (document.getElementById(name.value.toLowerCase() + '_' + itemPrice))
+        if (document.getElementById(name.value.toLowerCase()))
         {
             document.activeElement.blur()
             let errorDialog = document.querySelector('#alert-error')
@@ -690,7 +692,7 @@ function confirmAddItem(event)
         prices[numOfItems] = itemPrice;
 
         numOfItems = Number(numOfItems) + 1;
-        orderQuantities[name.value] = 0;
+        orderQuantities[`${name.value}_${itemPrice}`] = 0;
         console.log(orderQuantities)
         updateNumberOfItemsStyle(numOfItems);
         saveData();
@@ -714,7 +716,8 @@ function itemSummaryEntry(name, quantity) {
     let itemEntryName = document.createElement('h1')
     let itemEntryQuantity = document.createElement('h1')
     itemEntry.classList.add('summary-item-entry')
-    itemEntryName.innerText = name
+    itemEntryName.innerText = name.split('_')[0]
+    itemEntryName.dataset.price = formatter.format(Number(name.split('_')[1])).split('$')[1]
     itemEntryQuantity.innerText = quantity
     itemEntry.appendChild(itemEntryName)
     itemEntry.appendChild(document.createElement('hr'))
@@ -737,7 +740,7 @@ function createListItem(nameInput, priceInput, orderInput)
         <h2 data-price="${price}">${name}</h2>
         <div class="quantity">
             <button aria-label="Decrement ${name}" class="decrement" tabindex="-1"></button>
-            <input aria-label="Number of ${name}" type="number" pattern="[0-9]*" inputmode="numeric" data-name="${name}" data-price="${price}" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="${name.toLowerCase()}_${price}" tabindex="-1">
+            <input aria-label="Number of ${name}" type="number" pattern="[0-9]*" inputmode="numeric" data-name="${name}" data-price="${price}" data-quantity="0" min="0" max="99" value="0" name="Quantity" id="${name.toLowerCase()}" tabindex="-1">
             <button aria-label="Increment ${name}" class="increment" tabindex="-1"></button>
         </div>`
     return listItem;
@@ -765,6 +768,24 @@ function setSettings(init = false)
         settingCheckbox.checked = state;
         if (init) {
             settingCheckbox.addEventListener('click', settingButtonHandler)
+        }
+    }
+}
+
+function setOrderQuantitiesObject()
+{
+    clearOrderQuantities();
+    for (var i = 0; i < numOfItems; i++)
+    {
+        orderQuantities[`${names[i]}_${prices[i]}`] = 0
+    }
+}
+
+function clearOrderQuantities()
+{
+    for (var item in orderQuantities){
+        if (orderQuantities.hasOwnProperty(item)){
+            delete orderQuantities[item];
         }
     }
 }
@@ -890,6 +911,7 @@ function reOrderStorage(oldIndex, newIndex)
     names.splice(newIndex, 0, itemName);
     prices.splice(newIndex, 0, itemPrice);
     saveData();
+    setOrderQuantitiesObject();
     reOrder();
 }
 
@@ -930,10 +952,7 @@ function updateThemeOrderAttr()
 {
     let order = Number(settingModal.dataset.items) - 4;
     [ ...document.getElementById('theme-picker').children].forEach(theme => {
-        if (theme.disabled)
-            theme.dataset.settingOrder = "-1";
-        else   
-            theme.dataset.settingOrder = order++;
+        theme.disabled ? (theme.dataset.settingOrder = "-1") : (theme.dataset.settingOrder = order++)
     })
 }
 
