@@ -46,9 +46,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Point of Sale: Calculate Order Prices Quickly</title>
   <meta name="description" content="Point of Sale App, Add your own Menu and Pricing.">
-  <script type="module" crossorigin src="assets/index.5448bbd0.js"></script>
+  <script type="module" crossorigin src="assets/index.b7e6d3d2.js"></script>
   <link rel="modulepreload" href="assets/vendor.c27de078.js">
-  <link rel="stylesheet" href="assets/index.ed715ff1.css">
+  <link rel="stylesheet" href="assets/index.dfb5d378.css">
 </head>
 <body>
   <div class="alert-container">
@@ -110,14 +110,14 @@
       <div class="setting-entry">
         <div class="name-setting-entry">
           <h3 class="title-setting-entry">Show Order Summary</h3>
-          <h4 class="subtitle-setting-entry">Show Order Summary before Clearing</h4>
+          <h4 class="subtitle-setting-entry">Show order summary before clearing</h4>
         </div>
         <input id="show_order_summary" type="checkbox" aria-label="Show Order Summary Before Clearing Toggle" data-setting-order="1">
       </div>
       <div class="setting-entry">
         <div class="name-setting-entry">
           <h3 class="title-setting-entry">Change Calculator</h3>
-          <h4 class="subtitle-setting-entry">Calculate Change at end of Order</h4>
+          <h4 class="subtitle-setting-entry">Show change calculator at order summary</h4>
         </div>
         <input id="change_calculator" type="checkbox" aria-label="Activate Change Calculator Toggle" data-setting-order="2">
       </div>
@@ -203,7 +203,7 @@
     </div>
     <ul aria-label="Menu Items" id="order" class="hidden">
     </ul>
-    <div class="price_footer">
+    <div class="price_footer stickied">
       <div class="total">
         <h1>Total</h1>
         <input aria-label="Price of Order" type="text" value="$0.00" data-total="0" id="total" readonly tabindex="-1">
