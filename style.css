@@ -397,7 +397,7 @@ li,
 .price_footer {
   -webkit-transition: transform 500ms ease-in-out;
   transition: transform 500ms ease-in-out;
-  background: white !important;
+  background: var(--background-color) !important;
   transform: scale(1)
 }
 
