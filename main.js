@@ -115,6 +115,14 @@ window.onload = function() {
         }
     });
 
+    const el = document.querySelector(".price_footer")
+    const observer = new IntersectionObserver(
+        ([e]) => e.target.classList.toggle("expand", e.intersectionRatio < 1),
+        { threshold: [1], rootMargin: '-1px' }
+    );
+
+    observer.observe(el);
+
 };
 
 var formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -918,7 +926,7 @@ function reOrderStorage(oldIndex, newIndex)
 function outsideViewport(element) {
     var pos = element.getBoundingClientRect();
     var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-    return !(pos.bottom > 0 && pos.bottom <= viewHeight - Number(getComputedStyle(document.body).getPropertyValue('--safe-area-bottom').split('px')[0]) && pos.top > 0 + Number(getComputedStyle(document.body).getPropertyValue('--safe-area-top').split('px')[0]) && pos.top <= viewHeight);
+    return !(pos.bottom > 0 && pos.bottom <= viewHeight - Number(getComputedStyle(document.body).getPropertyValue('--safe-area-bottom').split('px')[0] + document.querySelector(".price_footer").getBoundingClientRect().height) && pos.top > 0 + Number(getComputedStyle(document.body).getPropertyValue('--safe-area-top').split('px')[0]) && pos.top <= viewHeight);
 }
 
 function updateTheme()
@@ -976,7 +984,7 @@ function hideKeyPress() {
         alertDialog.classList.remove('show');
 
         alertDialog.addEventListener('transitionend', function hide(event) {
-            if (event.propertyName === 'opacity' && !alertDialog.matches('.show'))
+            if (event.propertyName === 'margin-top' && !alertDialog.matches('.show'))
             {
                 alertDialog.textContent = '';
                 alertDialog.removeEventListener('transitionend', hide);

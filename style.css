@@ -385,18 +385,34 @@ li,
   box-shadow: 0 .2em .4em var(--reg-box-shadow), 0 0 .8em var(--reg-box-shadow);
 }
 
+.sortable-drag > button {
+  display: none;
+}
+
 :is(li, .total, .add, .complete, .edit, .finished):focus-visible {
   box-shadow: var(--focus-box-shadow) !important;
   outline: none;
 }
 
 .price_footer {
-  -webkit-transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
-  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-transition: transform 500ms ease-in-out;
+  transition: transform 500ms ease-in-out;
+  background: white !important;
+  transform: scale(1)
 }
 
 .price_footer.dragging {
     margin-top: 1rem;
+}
+
+.price_footer.stickied {
+  position: sticky;
+  bottom: 0;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));;
+}
+
+.price_footer.expand {
+  transform: scale(1.05);
 }
 
 .modal {
@@ -712,7 +728,7 @@ ul {
 .add::before, .add::after {
   content: ' ';
   aspect-ratio: 6.5;
-  height: 9%;
+  height: 8%;
   background: currentColor;
   position: absolute;
   border-radius: 1rem;
@@ -962,7 +978,8 @@ input[type="number"]::-webkit-outer-spin-button {
   text-align: center;
   user-select: none;
   opacity: 0;
-  transition: opacity 250ms ease-in, margin-top 500ms ease-in, margin-bottom 500ms ease-in;
+  margin-top: 0rem;
+  transition: opacity 125ms ease-in, margin-top 325ms ease-in, margin-bottom 325ms ease-in;
   -webkit-backdrop-filter: blur(.3125rem); backdrop-filter: blur(.3125rem);
 }
 
@@ -981,7 +998,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .alert-dialog:not(.show) ~ .alert-dialog {
-  transition: none;
   margin-top: 3.2125rem;
 }
 
